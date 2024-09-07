@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+{% endblock %}
+
+{% block title %}Dashboard Entreprise{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {# <h1>Bienvenue, {{ company.name }}</h1> #}
+
+    <div class="dashboard-content">
+        <section class="dashboard-section">
+            <h2>Vos Établissements</h2>
+            <ul>
+                {% for establishment in establishments %}
+                    <li>{{ establishment.name }}</li>
+                    <!-- Ajoutez d'autres détails ou actions, comme éditer ou supprimer -->
+                {% else %}
+                    <p>Vous n'avez pas encore d'établissements enregistrés.</p>
+
+                    <a href="{{ path('establishment_new') }}" class="btn">Ajouter un établissement</a>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Ajoutez d'autres sections pour gérer les services, réservations, statistiques, etc. -->
+    </div>
+</div>
+{% endblock %}
