@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\EstablishmentRepository;
@@ -11,7 +10,11 @@ class Establishment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'establishments')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $company = null;
 
     public function getId(): ?int
     {
@@ -124,25 +127,29 @@ class Establishment
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'establishments')]
     #[ORM\JoinColumn(nullable: false)]
-    private User $company;
 
-    public function getCompany(): User
+    public function getCompany(): ?User
     {
         return $this->company;
     }
 
-    public function setCompany(User $company): void
+    public function setCompany(?User $company): self
     {
         $this->company = $company;
+
+        return $this;
     }
 
-    public function __toString(): string
+    #[ORM\Column]
+    private string $siret;
+
+    public function getSiret(): string
     {
-        return $this->name;
+        return $this->siret;
     }
 
-    public function __construct()
+    public function setSiret(string $siret): void
     {
-        $this->company = new ArrayCollection();
+        $this->siret = $siret;
     }
 }
