@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Form;
 
 use App\Entity\Establishment;
@@ -16,7 +15,7 @@ class EstablishmentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('Name', TextType::class, [
+            ->add('name', TextType::class, [
                 'label' => 'Nom de l\'entreprise',
                 'required' => true,
             ])
@@ -24,24 +23,32 @@ class EstablishmentType extends AbstractType
                 'label' => 'Adresse',
                 'required' => true,
             ])
-            ->add('phone', IntegerType::class, [
+            ->add('postalCode', IntegerType::class, [
+                'label' => 'Code postal',
+                'required' => true,
+            ])
+            ->add('city', TextType::class, [
+                'label' => 'Ville',
+                'required' => true,
+            ])
+            ->add('phone', TextType::class, [
                 'label' => 'Numéro de téléphone',
                 'required' => true,
             ])
-            ->add('email', TextareaType::class, [
-                'label' => 'email',
+            ->add('email', TextType::class, [
+                'label' => 'Email',
                 'required' => true,
             ])
-            ->add('website', TextareaType::class, [
-                'label' => 'site web',
+            ->add('website', TextType::class, [
+                'label' => 'Site web',
                 'required' => false,
             ])
-            ->add('siret', IntegerType::class, [
+            ->add('siret', TextType::class, [
                 'label' => 'Numéro SIRET',
                 'required' => true,
             ])
             ->add('create', SubmitType::class, [
-                'label' => 'create',
+                'label' => 'Créer',
             ]);
     }
 

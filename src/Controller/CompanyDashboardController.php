@@ -7,12 +7,21 @@ use App\Form\EstablishmentType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 
 class CompanyDashboardController extends AbstractController
 {
+
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/dashboard', name: 'company_dashboard')]
-    #[IsGranted('ROLE_COMPANY')]
+    // #[IsGranted('ROLE_COMPANY')]
     public function index(): Response
     {
         $company = $this->getUser();
@@ -29,21 +38,29 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard/establishment/new', name: 'establishment_new')]
-    #[IsGranted('ROLE_COMPANY')]
-
-    public function newEstablishment(): Response
+    public function newEstablishment(Request $request): Response
     {
         $establishment = new Establishment();
         $establishment->setCompany($this->getUser());
         $form = $this->createForm(EstablishmentType::class, $establishment);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($establishment);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('company_dashboard');
+        }
 
         return $this->render('dashboard/establishment_new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
+
     #[Route('/dashboard/establishment/{id}/edit', name: 'establishment_edit')]
-    #[IsGranted('ROLE_COMPANY')]
+    // #[IsGranted('ROLE_COMPANY')]
     public function editEstablishment(Establishment $establishment): Response
     {
         if ($establishment->getCompany() !== $this->getUser()) {
@@ -58,7 +75,7 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard/establishment/{id}/delete', name: 'establishment_delete')]
-    #[IsGranted('ROLE_COMPANY')]
+    // #[IsGranted('ROLE_COMPANY')]
     public function deleteEstablishment(Establishment $establishment): Response
     {
         if ($establishment->getCompany() !== $this->getUser()) {
@@ -73,7 +90,7 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard/establishment/{id}', name: 'establishment_show')]
-    #[IsGranted('ROLE_COMPANY')]
+    // #[IsGranted('ROLE_COMPANY')]
     public function showEstablishment(Establishment $establishment): Response
     {
         if ($establishment->getCompany() !== $this->getUser()) {
@@ -86,7 +103,7 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard/establishment/{id}/bookings', name: 'establishment_bookings')]
-    #[IsGranted('ROLE_COMPANY')]
+    // #[IsGranted('ROLE_COMPANY')]
     public function showEstablishmentBookings(Establishment $establishment): Response
     {
         if ($establishment->getCompany() !== $this->getUser()) {

@@ -25,7 +25,19 @@
             </ul>
         </section>
 
-        <!-- Ajoutez d'autres sections pour gérer les services, réservations, statistiques, etc. -->
+        {# ajouter une sections pour les reservations #}
+
+        <section class="dashboard-section">
+            <h2>Vos Réservations</h2>
+            <ul>
+                {% for reservation in reservations %}
+                    <li>{{ reservation.details }}</li>
+                {% else %}
+                    <p>Vous n'avez pas encore de réservations.</p>
+                {% endfor %}
+            </ul>
+        </section>
+
     </div>
 </div>
 {% endblock %}
