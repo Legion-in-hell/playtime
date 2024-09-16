@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\Reservation;
 
 class CompanyDashboardController extends AbstractController
 {
@@ -21,19 +22,21 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'company_dashboard')]
-    // #[IsGranted('ROLE_COMPANY')]
     public function index(): Response
     {
         $company = $this->getUser();
-        if ($company instanceof Establishment) {
-            $establishments = $company->getEstablishments();
-        } else {
-            $establishments = null;
+        $establishments = $this->entityManager->getRepository(Establishment::class)->findBy(['company' => $company]);
+        
+        $reservations = [];
+        foreach ($establishments as $establishment) {
+            $establishmentReservations = $this->entityManager->getRepository(Reservation::class)->findBy(['establishment' => $establishment]);
+            $reservations = array_merge($reservations, $establishmentReservations);
         }
 
         return $this->render('dashboard/company_dashboard.html.twig', [
             'company' => $company,
             'establishments' => $establishments,
+            'reservations' => $reservations,
         ]);
     }
 

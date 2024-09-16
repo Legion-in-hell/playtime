@@ -5,16 +5,15 @@ use App\Repository\EstablishmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EstablishmentRepository::class)]
-class Establishment
-{
+class Establishment {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'establishments')]
+    #[ORM\ManyToOne(targetEntity: Establishment::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $company = null;
+    private ?Establishment $establishment = null;
 
     public function getId(): ?int
     {
@@ -125,21 +124,6 @@ class Establishment
         $this->website = $website;
     }
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'establishments')]
-    #[ORM\JoinColumn(nullable: false)]
-
-    public function getCompany(): ?User
-    {
-        return $this->company;
-    }
-
-    public function setCompany(?User $company): self
-    {
-        $this->company = $company;
-
-        return $this;
-    }
-
     #[ORM\Column]
     private string $siret;
 
@@ -152,4 +136,37 @@ class Establishment
     {
         $this->siret = $siret;
     }
+
+    #[ORM\Column(type: 'json')]
+    private array $openingHours = [];
+
+    public function __construct()
+    {
+        $this->openingHours = [];
+    }
+
+    public function getOpeningHours(): array
+    {
+        return $this->openingHours;
+    }
+
+    public function setOpeningHours(array $openingHours): self
+    {
+        $this->openingHours = $openingHours;
+
+        return $this;
+    }
+
+    public function getEstablishment(): ?Establishment
+    {
+        return $this->establishment;
+    }
+
+    public function setEstablishment(?Establishment $establishment): self
+    {
+        $this->establishment = $establishment;
+
+        return $this;
+    }
+
 }

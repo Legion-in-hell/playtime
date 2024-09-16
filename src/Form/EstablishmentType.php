@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class EstablishmentType extends AbstractType
 {
@@ -31,6 +32,10 @@ class EstablishmentType extends AbstractType
                 'label' => 'Ville',
                 'required' => true,
             ])
+            ->add('country', TextType::class, [
+                'label' => 'Pays',
+                'required' => true,
+            ])
             ->add('phone', TextType::class, [
                 'label' => 'Numéro de téléphone',
                 'required' => true,
@@ -46,6 +51,17 @@ class EstablishmentType extends AbstractType
             ->add('siret', TextType::class, [
                 'label' => 'Numéro SIRET',
                 'required' => true,
+            ])
+            ->add('openingHours', CollectionType::class, [
+                'entry_type' => OpeningHourType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+                'attr' => [
+                    'class' => 'opening-hours-collection',
+                ],
             ])
             ->add('create', SubmitType::class, [
                 'label' => 'Créer',
