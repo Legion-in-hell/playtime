@@ -24,8 +24,7 @@ class CompanyDashboardController extends AbstractController
     #[Route('/dashboard', name: 'company_dashboard')]
     public function index(): Response
     {
-        $company = $this->getUser();
-        $establishments = $this->entityManager->getRepository(Establishment::class)->findBy(['company' => $company]);
+        $establishments = $this->entityManager->getRepository(Establishment::class)->findBy(['name' => $this->getUser()]);
         
         $reservations = [];
         foreach ($establishments as $establishment) {
@@ -34,7 +33,6 @@ class CompanyDashboardController extends AbstractController
         }
 
         return $this->render('dashboard/company_dashboard.html.twig', [
-            'company' => $company,
             'establishments' => $establishments,
             'reservations' => $reservations,
         ]);

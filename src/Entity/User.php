@@ -125,11 +125,16 @@ class User implements UserInterface , PasswordAuthenticatedUserInterface
         return $this->establishments;
     }
 
+    public function getName(Establishment $establishment): string
+    {
+        return $establishment->getName();
+    }
+
     public function addEstablishment(Establishment $establishment): self
     {
         if (!$this->establishments->contains($establishment)) {
             $this->establishments[] = $establishment;
-            $establishment->setCompany($this);
+            $establishment->setName($this);
         }
 
         return $this;
@@ -139,8 +144,8 @@ class User implements UserInterface , PasswordAuthenticatedUserInterface
     {
         if ($this->establishments->removeElement($establishment)) {
             // set the owning side to null (unless already changed)
-            if ($establishment->getCompany() === $this) {
-                $establishment->setCompany(null);
+            if ($establishment->getName() === $this) {
+                $establishment->setName(null);
             }
         }
 
