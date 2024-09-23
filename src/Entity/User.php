@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -9,20 +10,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface , PasswordAuthenticatedUserInterface
+#[ORM\Table(name: '`user`')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    #[ORM\OneToMany(mappedBy: 'company', targetEntity: Establishment::class)]
-    private Collection $establishments;
-
-    public function __construct()
-    {
-        $this->establishments = new ArrayCollection();
-    }
 
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
@@ -30,14 +24,28 @@ class User implements UserInterface , PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $establishmentName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $address = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $openingHours = null;
+
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: "user", orphanRemoval: true)]
+    private Collection $reservations;
+
+    public function __construct()
+    {
+        $this->reservations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -52,42 +60,27 @@ class User implements UserInterface , PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -96,7 +89,6 @@ class User implements UserInterface , PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -108,47 +100,72 @@ class User implements UserInterface , PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
-
         return $this;
     }
 
     public function eraseCredentials(): void
     {
-        // TODO: Implement eraseCredentials() method.
+        // If you store any temporary, sensitive data on the user, clear it here
     }
 
-    /**
-     * @return Collection<int, Establishment>
-     */
-    public function getEstablishments(): Collection
+    public function getEstablishmentName(): ?string
     {
-        return $this->establishments;
+        return $this->establishmentName;
     }
 
-    public function getName(Establishment $establishment): string
+    public function setEstablishmentName(?string $establishmentName): self
     {
-        return $establishment->getName();
-    }
-
-    public function addEstablishment(Establishment $establishment): self
-    {
-        if (!$this->establishments->contains($establishment)) {
-            $this->establishments[] = $establishment;
-            $establishment->setName($this);
-        }
-
+        $this->establishmentName = $establishmentName;
         return $this;
     }
 
-    public function removeEstablishment(Establishment $establishment): self
+    public function getAddress(): ?string
     {
-        if ($this->establishments->removeElement($establishment)) {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+
+    public function getOpeningHours(): ?array
+    {
+        return $this->openingHours;
+    }
+
+    public function setOpeningHours(?array $openingHours): self
+    {
+        $this->openingHours = $openingHours;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): self
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): self
+    {
+        if ($this->reservations->removeElement($reservation)) {
             // set the owning side to null (unless already changed)
-            if ($establishment->getName() === $this) {
-                $establishment->setName(null);
+            if ($reservation->getUser() === $this) {
+                $reservation->setUser(null);
             }
         }
-
         return $this;
     }
 }

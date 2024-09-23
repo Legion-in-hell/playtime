@@ -10,10 +10,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Reservation;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class CompanyDashboardController extends AbstractController
 {
-
     private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -24,51 +24,58 @@ class CompanyDashboardController extends AbstractController
     #[Route('/dashboard', name: 'company_dashboard')]
     public function index(): Response
     {
-        $establishments = $this->entityManager->getRepository(Establishment::class)->findBy(['name' => $this->getUser()]);
+        $user = $this->getUser();
         
-        $reservations = [];
-        foreach ($establishments as $establishment) {
-            $establishmentReservations = $this->entityManager->getRepository(Reservation::class)->findBy(['establishment' => $establishment]);
-            $reservations = array_merge($reservations, $establishmentReservations);
+        if (!$user) {
+            throw $this->createAccessDeniedException('User not found.');
         }
 
+        $reservations = $this->entityManager->getRepository(Reservation::class)->findBy(['user' => $user]);
+
         return $this->render('dashboard/company_dashboard.html.twig', [
-            'establishments' => $establishments,
+            'user' => $user,
             'reservations' => $reservations,
         ]);
     }
 
-    #[Route('/dashboard/establishment/new', name: 'establishment_new')]
-    public function newEstablishment(Request $request): Response
+    #[Route('/dashboard/establishment/update', name: 'establishment_update')]
+    public function updateEstablishment(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $establishment = new Establishment();
-        $establishment->setCompany($this->getUser());
-        $form = $this->createForm(EstablishmentType::class, $establishment);
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('User not found.');
+        }
 
+        $form = $this->createForm(EstablishmentType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->persist($establishment);
-            $this->entityManager->flush();
+            $entityManager->flush();
 
+            $this->addFlash('success', 'Les informations de votre établissement ont été mises à jour avec succès.');
             return $this->redirectToRoute('company_dashboard');
         }
 
-        return $this->render('dashboard/establishment_new.html.twig', [
+        return $this->render('dashboard/establishment_update.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-
     #[Route('/dashboard/establishment/{id}/edit', name: 'establishment_edit')]
-    // #[IsGranted('ROLE_COMPANY')]
-    public function editEstablishment(Establishment $establishment): Response
+    #[IsGranted('ROLE_COMPANY')]
+    public function editEstablishment(Request $request, Establishment $establishment): Response
     {
-        if ($establishment->getCompany() !== $this->getUser()) {
+        if ($establishment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
         $form = $this->createForm(EstablishmentType::class, $establishment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+            return $this->redirectToRoute('company_dashboard');
+        }
 
         return $this->render('dashboard/establishment_edit.html.twig', [
             'form' => $form->createView(),
@@ -76,25 +83,24 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard/establishment/{id}/delete', name: 'establishment_delete')]
-    // #[IsGranted('ROLE_COMPANY')]
+    #[IsGranted('ROLE_COMPANY')]
     public function deleteEstablishment(Establishment $establishment): Response
     {
-        if ($establishment->getCompany() !== $this->getUser()) {
+        if ($establishment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($establishment);
-        $entityManager->flush();
+        $this->entityManager->remove($establishment);
+        $this->entityManager->flush();
 
         return $this->redirectToRoute('company_dashboard');
     }
 
     #[Route('/dashboard/establishment/{id}', name: 'establishment_show')]
-    // #[IsGranted('ROLE_COMPANY')]
+    #[IsGranted('ROLE_COMPANY')]
     public function showEstablishment(Establishment $establishment): Response
     {
-        if ($establishment->getCompany() !== $this->getUser()) {
+        if ($establishment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -104,10 +110,10 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard/establishment/{id}/bookings', name: 'establishment_bookings')]
-    // #[IsGranted('ROLE_COMPANY')]
+    #[IsGranted('ROLE_COMPANY')]
     public function showEstablishmentBookings(Establishment $establishment): Response
     {
-        if ($establishment->getCompany() !== $this->getUser()) {
+        if ($establishment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -115,5 +121,4 @@ class CompanyDashboardController extends AbstractController
             'establishment' => $establishment,
         ]);
     }
-
 }

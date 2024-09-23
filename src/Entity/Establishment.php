@@ -9,11 +9,11 @@ class Establishment {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Establishment::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Establishment $establishment = null;
+    private Establishment $establishment;
 
     public function getId(): ?int
     {
@@ -157,16 +157,31 @@ class Establishment {
         return $this;
     }
 
-    public function getEstablishment(): ?Establishment
+    public function getEstablishment(): Establishment
     {
         return $this->establishment;
     }
 
-    public function setEstablishment(?Establishment $establishment): self
+    public function setEstablishment(Establishment $establishment): self
     {
         $this->establishment = $establishment;
 
         return $this;
     }
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'establishments')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 }

@@ -1,41 +1,56 @@
 {% extends 'base.html.twig' %}
+
 {% block stylesheets %}
+    {{ parent() }}
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 {% endblock %}
+
 {% block title %}Dashboard Entreprise{% endblock %}
+
 {% block body %}
 <div class="dashboard-container">
-{% for establishment in establishments %}
-    <h1>Bienvenue, {{ establishment.name }}</h1>
-{% endfor %}
+    <header class="dashboard-header">
+        <h1>Bienvenue, {{ user.establishmentName ?? 'Entrepreneur' }}</h1>
+    </header>
+
     <div class="dashboard-content">
-        <section class="dashboard-section">
-            <h2>Votre Établissements</h2>
-            <ul>
-                {% for establishment in establishments %}
-                    <li>{{ establishment.name }}</li>
-                    <ul>
-                        {% for day, hours in establishment.openingHours %}
-                            <li>{{ day }}: {{ hours }}</li>
+        <section class="dashboard-section establishment-info">
+            <h2>Informations de l'établissement</h2>
+            {% if user.establishmentName %}
+                <div class="info-card">
+                    <h3>{{ user.establishmentName }}</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ user.address }}</p>
+                    <h4>Horaires d'ouverture</h4>
+                    <ul class="opening-hours">
+                        {% for day, hours in user.openingHours %}
+                            <li><span>{{ day }}:</span> {{ hours }}</li>
                         {% endfor %}
                     </ul>
-                    <!-- Ajoutez d'autres détails ou actions, comme éditer ou supprimer -->
-                {% else %}
-                    <p>Vous n'avez pas encore d'établissements enregistrés.</p>
-                    <a href="{{ path('establishment_new') }}" class="btn">Ajouter un établissement</a>
-                {% endfor %}
-            </ul>
+                    <a href="{{ path('establishment_update') }}" class="btn btn-primary">Modifier les informations</a>
+                </div>
+            {% else %}
+                <p>Vous n'avez pas encore d'établissement enregistré.</p>
+                <a href="{{ path('establishment_update') }}" class="btn btn-primary">Ajouter un établissement</a>
+            {% endif %}
         </section>
-        {# ajouter une sections pour les reservations #}
-        <section class="dashboard-section">
+
+        <section class="dashboard-section reservations">
             <h2>Vos Réservations</h2>
-            <ul>
-                {% for reservation in reservations %}
-                    <li>{{ reservation.details }}</li>
-                {% else %}
-                    <p>Vous n'avez pas encore de réservations.</p>
-                {% endfor %}
-            </ul>
+            {% if reservations is not empty %}
+                <div class="reservations-list">
+                    {% for reservation in reservations %}
+                        <div class="reservation-card">
+                            <h3>{{ reservation.name }}</h3>
+                            <p><i class="far fa-calendar-alt"></i> {{ reservation.reservationDateTime|date('d/m/Y H:i') }}</p>
+                            <p><i class="fas fa-envelope"></i> {{ reservation.email }}</p>
+                            <p><i class="fas fa-phone"></i> {{ reservation.phone }}</p>
+                            <p><i class="fas fa-comment"></i> {{ reservation.message }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>Vous n'avez pas encore de réservations.</p>
+            {% endif %}
         </section>
     </div>
 </div>
