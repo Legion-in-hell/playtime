@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Establishment;
-use App\Form\EstablishmentType;
+use App\Entity\Schedule;
+use App\Entity\SportCompany;
+use App\Form\SportCompanyType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,103 +23,89 @@ class CompanyDashboardController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'company_dashboard')]
+    #[IsGranted('ROLE_COMPANY')]
     public function index(): Response
     {
         $user = $this->getUser();
         
-        if (!$user) {
-            throw $this->createAccessDeniedException('User not found.');
+        if (!$user instanceof SportCompany) {
+            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
         }
 
-        $reservations = $this->entityManager->getRepository(Reservation::class)->findBy(['user' => $user]);
+        $reservations = $this->entityManager->getRepository(Schedule::class)->findBy(['sportCompany' => $user]);
 
         return $this->render('dashboard/company_dashboard.html.twig', [
-            'user' => $user,
+            'company' => $user,
             'reservations' => $reservations,
         ]);
     }
 
-    #[Route('/dashboard/establishment/update', name: 'establishment_update')]
-    public function updateEstablishment(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            throw $this->createAccessDeniedException('User not found.');
-        }
-
-        $form = $this->createForm(EstablishmentType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Les informations de votre établissement ont été mises à jour avec succès.');
-            return $this->redirectToRoute('company_dashboard');
-        }
-
-        return $this->render('dashboard/establishment_update.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/dashboard/establishment/{id}/edit', name: 'establishment_edit')]
+    #[Route('/dashboard/company/update', name: 'company_update')]
     #[IsGranted('ROLE_COMPANY')]
-    public function editEstablishment(Request $request, Establishment $establishment): Response
+    public function updateCompany(Request $request): Response
     {
-        if ($establishment->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
+        $company = $this->getUser();
+        if (!$company instanceof SportCompany) {
+            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
         }
 
-        $form = $this->createForm(EstablishmentType::class, $establishment);
+        $form = $this->createForm(SportCompanyType::class, $company);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les informations de votre entreprise ont été mises à jour avec succès.');
             return $this->redirectToRoute('company_dashboard');
         }
 
-        return $this->render('dashboard/establishment_edit.html.twig', [
+        return $this->render('dashboard/company_update.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/dashboard/establishment/{id}/delete', name: 'establishment_delete')]
+    #[Route('/dashboard/services', name: 'company_services')]
     #[IsGranted('ROLE_COMPANY')]
-    public function deleteEstablishment(Establishment $establishment): Response
+    public function manageServices(): Response
     {
-        if ($establishment->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
+        $company = $this->getUser();
+        if (!$company instanceof SportCompany) {
+            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
         }
 
-        $this->entityManager->remove($establishment);
-        $this->entityManager->flush();
-
-        return $this->redirectToRoute('company_dashboard');
-    }
-
-    #[Route('/dashboard/establishment/{id}', name: 'establishment_show')]
-    #[IsGranted('ROLE_COMPANY')]
-    public function showEstablishment(Establishment $establishment): Response
-    {
-        if ($establishment->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        return $this->render('dashboard/establishment_show.html.twig', [
-            'establishment' => $establishment,
+        return $this->render('dashboard/company_services.html.twig', [
+            'company' => $company,
         ]);
     }
 
-    #[Route('/dashboard/establishment/{id}/bookings', name: 'establishment_bookings')]
+    #[Route('/dashboard/schedule', name: 'company_schedule')]
     #[IsGranted('ROLE_COMPANY')]
-    public function showEstablishmentBookings(Establishment $establishment): Response
+    public function manageSchedule(): Response
     {
-        if ($establishment->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
+        $company = $this->getUser();
+        if (!$company instanceof SportCompany) {
+            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
         }
 
-        return $this->render('dashboard/establishment_bookings.html.twig', [
-            'establishment' => $establishment,
+        return $this->render('dashboard/company_schedule.html.twig', [
+            'company' => $company,
+        ]);
+    }
+
+    #[Route('/dashboard/reservations', name: 'company_reservations')]
+    #[IsGranted('ROLE_COMPANY')]
+    public function showReservations(): Response
+    {
+        $company = $this->getUser();
+        if (!$company instanceof SportCompany) {
+            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+        }
+
+        $reservations = $this->entityManager->getRepository(Schedule::class)->findBy(['sportCompany' => $company]);
+
+        return $this->render('dashboard/company_reservations.html.twig', [
+            'company' => $company,
+            'reservations' => $reservations,
         ]);
     }
 }

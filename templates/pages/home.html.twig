@@ -1,8 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Accueil - Playtime{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
 {% endblock %}
 
@@ -10,51 +11,81 @@
 <header class="header">
     <div class="search-container">
         <h1>Recherchez votre entreprise sportive</h1>
-        <form class="search-form" action="{{ path('home') }}" method="get">
-            <input type="text" name="search" class="search-input" placeholder="Nom de l'entreprise, prestations (coupe...)">
+        <form class="search-form" action="{{ path('search_results') }}" method="get">
+            <input type="text" name="search" class="search-input" placeholder="Nom de l'entreprise, services...">
             <input type="text" name="location" class="search-input" placeholder="Adresse, ville...">
             <button type="submit" class="search-button">Rechercher</button>
         </form>
     </div>
 </header>
 
-
-    <main class="content">
-        <section class="placeholder">
-            <h2>Bienvenue sur notre plateforme</h2>
-            <p>Découvrez les meilleures entreprises sportives près de chez vous. Utilisez la barre de recherche ci-dessus pour commencer votre recherche. Vous pouvez également parcourir les différentes catégories d'entreprises sportives en bas de cette page.</p>
-            <p>Nous mettons en avant les entreprises qui vous aideront à atteindre vos objectifs de bien-être et de forme physique. Que vous cherchiez une salle de sport, un coach personnel, ou un centre de yoga, nous avons ce qu'il vous faut.</p>
-            <p>Cette plateforme est conçue pour faciliter la connexion entre les amateurs de sport et les professionnels du domaine. Ajoutez votre établissement pour attirer plus de clients ou explorez notre répertoire pour trouver la meilleure option pour vous.</p>
-        </section>
-    </main>
-
-    <section class="categories">
-        <h2>Explorez nos catégories</h2>
-        <ul class="category-list">
-            <li class="category-item">
-                {# <a href="{{ path('category', { 'id': 'gym' }) }}" class="category-link"> #}
-                    <img src="{{ asset('images/gym.jpg') }}" alt="Gym" class="category-image">
-                    <span class="category-name">Salle de sport</span>
-                {# </a> #}
-            </li>
-            <li class="category-item">
-                {# <a href="{{ path('category', { 'id': 'yoga' }) }}" class="category-link"> #}
-                    <img src="{{ asset('images/yoga.jpg') }}" alt="Yoga" class="category-image">
-                    <span class="category-name">Yoga</span>
-                {# </a> #}
-            </li>
-            <li class="category-item">
-                {# <a href="{{ path('category', { 'id': 'swimming' }) }}" class="category-link"> #}
-                    <img src="{{ asset('images/natation.jpg') }}" alt="Swimming" class="category-image">
-                    <span class="category-name">Natation</span>
-                {# </a> #}
-            </li>
-            <li class="category-item">
-                {# <a href="{{ path('category', { 'id': 'tennis' }) }}" class="category-link"> #}
-                    <img src="{{ asset('images/tennis.jpg') }}" alt="Tennis" class="category-image">
-                    <span class="category-name">Tennis</span>
-                {# </a> #}
-            </li>
-        </ul>
+<main class="content">
+    <section class="placeholder">
+        <h2>Bienvenue sur Playtime</h2>
+        <p>Découvrez les meilleures entreprises sportives près de chez vous. Utilisez la barre de recherche ci-dessus pour commencer votre recherche ou parcourez nos différentes catégories d'entreprises sportives.</p>
+        <p>Que vous cherchiez une salle de sport, un coach personnel, ou un centre de yoga, Playtime vous connecte avec les professionnels du sport qui vous aideront à atteindre vos objectifs.</p>
+        <p>Vous êtes une entreprise sportive ? <a href="{{ path('app_register_company') }}">Inscrivez-vous</a> pour attirer plus de clients !</p>
     </section>
+</main>
+
+<div class="container">
+    <h2 class="main-title">Découvrez nos entreprises partenaires</h2>
+    
+    <div class="company-grid">
+        {% for company in sportCompanies %}
+            <div class="company-card">
+                <div class="company-logo">
+                    <img src="{{ asset('images/placeholder-logo.png') }}" alt="Logo de {{ company.name }}">
+                </div>
+                <h3 class="company-name">{{ company.name }}</h3>
+                {% if company.address %}
+                    <p class="company-address"><i class="fas fa-map-marker-alt"></i> {{ company.address }}</p>
+                {% endif %}
+                {% if company.schedules %}
+                    <div class="company-hours">
+                        <h4>Horaires</h4>
+                        <ul>
+                            {% for schedule in company.schedules %}
+                                <li><span>{{ schedule.dayOfWeek }}:</span> {{ schedule.openingTime|date('H:i') }} - {{ schedule.closingTime|date('H:i') }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <a href="{{ path('company_details', {'id': company.id}) }}" class="btn-details">Voir plus</a>
+            </div>
+        {% else %}
+            <p class="no-companies">Aucune entreprise n'est encore enregistrée.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<section class="categories">
+    <h2>Explorez nos catégories</h2>
+    <ul class="category-list">
+        <li class="category-item">
+            <a href="{{ path('search_results', {'category': 'gym'}) }}" class="category-link">
+                <img src="{{ asset('images/gym.jpg') }}" alt="Gym" class="category-image">
+                <span class="category-name">Salle de sport</span>
+            </a>
+        </li>
+        <li class="category-item">
+            <a href="{{ path('search_results', {'category': 'yoga'}) }}" class="category-link">
+                <img src="{{ asset('images/yoga.jpg') }}" alt="Yoga" class="category-image">
+                <span class="category-name">Yoga</span>
+            </a>
+        </li>
+        <li class="category-item">
+            <a href="{{ path('search_results', {'category': 'swimming'}) }}" class="category-link">
+                <img src="{{ asset('images/natation.jpg') }}" alt="Swimming" class="category-image">
+                <span class="category-name">Natation</span>
+            </a>
+        </li>
+        <li class="category-item">
+            <a href="{{ path('search_results', {'category': 'tennis'}) }}" class="category-link">
+                <img src="{{ asset('images/tennis.jpg') }}" alt="Tennis" class="category-image">
+                <span class="category-name">Tennis</span>
+            </a>
+        </li>
+    </ul>
+</section>
 {% endblock %}

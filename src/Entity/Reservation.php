@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ReservationRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
@@ -13,127 +14,81 @@ class Reservation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private ?StandardUser $standardUser = null;
 
-    #[ORM\Column]
-    private ?string $name = null;
-
-    #[ORM\Column]
-    private ?string $email = null;
-
-    #[ORM\Column]
-    private ?string $phone = null;
-
-    #[ORM\Column]
-    private ?string $message = null;
-
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $reservationDateTime = null;
-
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $createdAt = null;
-
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $updatedAt = null;
-
-    #[ORM\ManyToOne(targetEntity: Establishment::class)]
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Establishment $establishment = null;
+    private ?SportCompany $sportCompany = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
-    }
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Service $service = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $dateTime = null;
+
+    #[ORM\Column(length: 20)]
+    private ?string $status = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getStandardUser(): ?StandardUser
     {
-        return $this->user;
+        return $this->standardUser;
     }
 
-    public function setUser(?User $user): self
+    public function setStandardUser(?StandardUser $standardUser): static
     {
-        $this->user = $user;
+        $this->standardUser = $standardUser;
         return $this;
     }
 
-    public function getName(): ?string
+    public function getSportCompany(): ?SportCompany
     {
-        return $this->name;
+        return $this->sportCompany;
     }
 
-    public function setName(string $name): self
+    public function setSportCompany(?SportCompany $sportCompany): static
     {
-        $this->name = $name;
-
+        $this->sportCompany = $sportCompany;
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getService(): ?Service
     {
-        return $this->email;
+        return $this->service;
     }
 
-    public function setEmail(string $email): self
+    public function setService(?Service $service): static
     {
-        $this->email = $email;
-
+        $this->service = $service;
         return $this;
     }
 
-    public function getPhone(): ?string
+    public function getDateTime(): ?\DateTimeInterface
     {
-        return $this->phone;
+        return $this->dateTime;
     }
 
-    public function setPhone(string $phone): self
+    public function setDateTime(\DateTimeInterface $dateTime): static
     {
-        $this->phone = $phone;
-
+        $this->dateTime = $dateTime;
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getStatus(): ?string
     {
-        return $this->message;
+        return $this->status;
     }
 
-    public function setMessage(string $message): self
+    public function setStatus(string $status): static
     {
-        $this->message = $message;
-
+        $this->status = $status;
         return $this;
     }
-
-    public function getReservationDateTime(): ?\DateTimeInterface
-    {
-        return $this->reservationDateTime;
-    }
-
-    public function setReservationDateTime(\DateTimeInterface $reservationDateTime): self
-    {
-        $this->reservationDateTime = $reservationDateTime;
-
-        return $this;
-    }
-
-    public function getEstablishment(): ?Establishment
-    {
-        return $this->establishment;
-    }
-
-    public function setEstablishment(?Establishment $establishment): self
-    {
-        $this->establishment = $establishment;
-
-        return $this;
-    }
-
 }

@@ -1,27 +1,33 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\Establishment;
-use Doctrine\ORM\EntityManager;
+use App\Entity\SportCompany;
+use App\Repository\SportCompanyRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
 {
     private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    private $sportCompanyRepository;
+    
+    public function __construct(EntityManagerInterface $entityManager, SportCompanyRepository $sportCompanyRepository)
     {
         $this->entityManager = $entityManager;
+        $this->sportCompanyRepository = $sportCompanyRepository;
     }
 
     #[Route('/', name: 'home')]
     public function index(Request $request): Response
     {
-        return $this->render('/pages/home.html.twig');
+        $sportCompanies = $this->sportCompanyRepository->findAll();
+
+        return $this->render('/pages/home.html.twig', [
+            'sportCompanies' => $sportCompanies,
+        ]);
     }
 
     #[Route('/search', name: 'search_results')]
@@ -31,12 +37,20 @@ class HomeController extends AbstractController
         $results = [];
 
         if ($searchTerm) {
-            $results = $this->entityManager->getRepository(Establishment::class)->findBySearchTerm($searchTerm);
+            $results = $this->sportCompanyRepository->findBySearchTerm($searchTerm);
             $this->addFlash('info', "Résultats de recherche pour: " . $searchTerm);
         }
 
         return $this->render('/pages/home.html.twig', [
             'search_results' => $results,
+        ]);
+    }
+
+    #[Route('/company/{id}', name: 'company_details')]
+    public function companyDetails(SportCompany $sportCompany): Response
+    {
+        return $this->render('/pages/companyDetails.html.twig', [
+            'company' => $sportCompany,
         ]);
     }
 }

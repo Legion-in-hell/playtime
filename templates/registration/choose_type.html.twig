@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir le type d'inscription{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/register.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Choisissez le type d'inscription</h1>
+    <div class="registration-choice">
+        <a href="{{ path('app_register_user') }}" class="btn btn-primary">S'inscrire en tant que particulier</a>
+        <a href="{{ path('app_register_company') }}" class="btn btn-secondary">S'inscrire en tant qu'entreprise</a>
+    </div>
+</div>
+{% endblock %}

@@ -3,21 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
-use App\Entity\Establishment;
+use App\Entity\Schedule;
+use App\Entity\SportCompany;
 use App\Form\ReservationType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ReservationController extends AbstractController
 {
     #[Route('/reservation/new/{id}', name: 'reservation_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager, Establishment $establishment): Response
+    #[IsGranted('ROLE_USER')]
+    public function new(Request $request, EntityManagerInterface $entityManager, SportCompany $sportCompany): Response
     {
         $reservation = new Reservation();
-        $reservation->setEstablishment($establishment);
+        $reservation->setSportCompany($sportCompany);
+        $reservation->setStandardUser($this->getUser());
 
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
@@ -31,7 +35,13 @@ class ReservationController extends AbstractController
 
         return $this->render('reservation/new.html.twig', [
             'form' => $form->createView(),
-            'establishment' => $establishment,
+            'sportCompany' => $sportCompany,
         ]);
+    }
+
+    #[Route('/reservation/success', name: 'reservation_success')]
+    public function success(): Response
+    {
+        return $this->render('reservation/success.html.twig');
     }
 }
