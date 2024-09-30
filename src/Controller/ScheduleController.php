@@ -14,6 +14,37 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ScheduleController extends AbstractController
 {
+
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    #[Route('/dashboard/schedule', name: 'company_schedule')]
+public function manageSchedule(Request $request): Response
+{
+    $company = $this->getUser();
+    $schedule = new Schedule();
+    $form = $this->createForm(ScheduleType::class, $schedule);
+    
+    $form->handleRequest($request);
+    if ($form->isSubmitted() && $form->isValid()) {
+        $schedule->setSportCompany($company);
+        $this->entityManager->persist($schedule);
+        $this->entityManager->flush();
+        
+        $this->addFlash('success', 'Nouvel horaire ajouté avec succès.');
+        return $this->redirectToRoute('company_schedule');
+    }
+    
+    return $this->render('dashboard/company_schedule.html.twig', [
+        'company' => $company,
+        'form' => $form->createView(),
+    ]);
+}
+
     #[Route('/schedule/new/{id}', name: 'schedule_new')]
     #[IsGranted('ROLE_COMPANY')]
     public function new(Request $request, EntityManagerInterface $entityManager, SportCompany $sportCompany): Response

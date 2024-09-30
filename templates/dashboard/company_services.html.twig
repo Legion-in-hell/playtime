@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Services - {{ company.name }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Gestion des Services - {{ company.name }}</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <h2>Services actuels</h2>
+    {% if company.services is not empty %}
+        <div class="row">
+            {% for service in company.services %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ service.name }}</h5>
+                            <p class="card-text">{{ service.description }}</p>
+                            <p class="card-text"><strong>Prix :</strong> {{ service.price }} €</p>
+                            <a href="{{ path('service_edit', {'id': service.id}) }}" class="btn btn-primary">Modifier</a>
+                            <form action="{{ path('service_delete', {'id': service.id}) }}" method="post" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?')">Supprimer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun service n'est actuellement proposé.</p>
+    {% endif %}
+
+    <h2 class="mt-4">Ajouter un nouveau service</h2>
+    {{ form_start(form) }}
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.name) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.price) }}
+        </div>
+    </div>
+    {{ form_row(form.description) }}
+    <button type="submit" class="btn btn-success">Ajouter le service</button>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

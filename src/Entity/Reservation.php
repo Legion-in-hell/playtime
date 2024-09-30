@@ -91,4 +91,34 @@ class Reservation
         $this->status = $status;
         return $this;
     }
+
+    #[ORM\Column(type: "date")]
+    private $date;
+
+    #[ORM\Column(type: "time")]
+    private $time;
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    public function getTime(): ?\DateTimeInterface
+    {
+        return $this->time;
+    }
+
+    public function setTime(\DateTimeInterface $time): self
+    {
+        $this->time = $time;
+        return $this;
+    }
+
+    
 }

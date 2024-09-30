@@ -58,10 +58,14 @@
             {% if company.schedules is not empty %}
                 <ul class="opening-hours">
                     {% for schedule in company.schedules %}
-                        <li>
-                            <span>{{ schedule.dayOfWeek }}:</span> 
-                            {{ schedule.openingTime|date('H:i') }} - {{ schedule.closingTime|date('H:i') }}
-                        </li>
+                        <tr>
+                            <td>{{ schedule.dayOfWeek }}</td>
+                            <td>{{ schedule.openingTime|date('H:i') }}</td>
+                            <td>{{ schedule.closingTime|date('H:i') }}</td>
+                            <td>
+                                <a href="{{ path('schedule_edit', {'id': schedule.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -70,26 +74,37 @@
             <a href="{{ path('company_schedule') }}" class="btn btn-primary">Gérer les horaires</a>
         </section>
 
-        <section id="reservations" class="dashboard-section reservations">
-            <h2>Vos Réservations</h2>
-            {% if reservations is not empty %}
-                <div class="reservations-list">
-                    {% for reservation in reservations %}
-                        <div class="reservation-card">
-                            <h3>Réservation #{{ reservation.id }}</h3>
-                            <p><i class="far fa-calendar-alt"></i> {{ reservation.dateTime|date('d/m/Y H:i') }}</p>
-                            <p><i class="fas fa-user"></i> {{ reservation.standardUser.firstName }} {{ reservation.standardUser.lastName }}</p>
-                            <p><i class="fas fa-envelope"></i> {{ reservation.standardUser.email }}</p>
-                            <p><i class="fas fa-phone"></i> {{ reservation.standardUser.phoneNumber }}</p>
-                            <p><i class="fas fa-tag"></i> Service: {{ reservation.service.name }}</p>
-                            <p><i class="fas fa-comment"></i> Statut: {{ reservation.status }}</p>
-                        </div>
-                    {% endfor %}
+<section id="reservations" class="dashboard-section reservations">
+    <h2>Vos Réservations</h2>
+    {% if reservations is defined and reservations is not empty %}
+        <div class="reservations-list">
+            {% for reservation in reservations %}
+                <div class="reservation-card">
+                    <h3>Réservation #{{ reservation.id }}</h3>
+                    {% if reservation.dateTime is defined %}
+                        <p><i class="far fa-calendar-alt"></i> {{ reservation.dateTime|date('d/m/Y H:i') }}</p>
+                    {% endif %}
+                    {% if reservation.standardUser is defined %}
+                        <p><i class="fas fa-user"></i> 
+                            {{ reservation.standardUser.firstName ?? 'N/A' }} 
+                            {{ reservation.standardUser.lastName ?? 'N/A' }}
+                        </p>
+                        <p><i class="fas fa-envelope"></i> {{ reservation.standardUser.email ?? 'N/A' }}</p>
+                        <p><i class="fas fa-phone"></i> {{ reservation.standardUser.phoneNumber ?? 'N/A' }}</p>
+                    {% endif %}
+                    {% if reservation.service is defined %}
+                        <p><i class="fas fa-tag"></i> Service: {{ reservation.service.name ?? 'N/A' }}</p>
+                    {% endif %}
+                    {% if reservation.status is defined %}
+                        <p><i class="fas fa-comment"></i> Statut: {{ reservation.status }}</p>
+                    {% endif %}
                 </div>
-            {% else %}
-                <p>Vous n'avez pas encore de réservations.</p>
-            {% endif %}
-        </section>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Vous n'avez pas encore de réservations.</p>
+    {% endif %}
+</section>
     </div>
 </div>
 {% endblock %}

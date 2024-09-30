@@ -40,7 +40,9 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(StandardUserRegistrationFormType::class, $user);
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
+            $user->setRoles(['ROLE_USER']);
             $user->setPassword(
                 $userPasswordHasher->hashPassword(
                     $user,
@@ -69,6 +71,7 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $company->setRoles(['ROLE_COMPANY']);
             $company->setPassword(
                 $userPasswordHasher->hashPassword(
                     $company,

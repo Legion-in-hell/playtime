@@ -4,19 +4,24 @@
 
 {% block navbar %}
 <nav class="navbar" id="navbar">
-    <a href="#" class="logo">Playtime</a>
+    <a href="/" class="logo"><img src="{{ asset('images/PLAYTIME-NOIR.png') }}" alt="PLAYTIME"></a>
     <ul class="nav-links">
-        <li><a href="#">Accueil</a></li>
+        <li><a href="/">Accueil</a></li>
         <li><a href="#">A propos</a></li>
         <li><a href="#">Services</a></li>
         <li><a href="#">Contact</a></li>
 
         {% if app.user %}
-            <li><a href="{{ path('company_dashboard') }}" class"nav-btn">Mon Tableau de Bord</a></li>
+            {% if app.user.roles[0] == 'ROLE_COMPANY' %}
+                <li><a href="{{ path('company_dashboard') }}" class"nav-btn">Mon Tableau de Bord</a></li>
+            {% endif %}
+            {% if app.user.roles[0] == 'ROLE_USER' %}
+                <li><a href="{{ path('user_dashboard') }}" class"nav-btn">Mon Compte</a></li>
+            {% endif %}
             <li><a href="{{ path('app_logout') }}" class="nav-btn">Déconnexion</a></li>
         {% else %}
             <li><a href="{{ path('app_login') }}" class="nav-btn">Connexion</a></li>
-            <li><a href="{{ path('app_register') }}" class="nav-btn">Ajouter votre établissement</a></li>
+            <li><a href="{{ path('app_register') }}" class="nav-btn">S'inscrire</a></li>
         {% endif %}
     </ul>
 </nav>

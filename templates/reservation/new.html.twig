@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle réservation - {{ company.name }}{% endblock %}
+
+{% block body %}
+    <h1>Nouvelle réservation chez {{ company.name }}</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.service) }}
+        {{ form_row(form.date) }}
+        {{ form_row(form.time) }}
+        <button type="submit" class="btn btn-primary">Réserver</button>
+    {{ form_end(form) }}
+
+    <h2>Horaires d'ouverture</h2>
+    <ul>
+    {% for schedule in company.schedules %}
+        <li>{{ schedule.dayOfWeek }}: {{ schedule.openingTime|date('H:i') }} - {{ schedule.closingTime|date('H:i') }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openingHours = JSON.parse('{{ openingHours|raw }}');
+
+    flatpickr(".datepicker", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        locale: "fr",
+        enable: [
+            function(date) {
+                const dayOfWeek = date.toLocaleDateString('en-US', {weekday: 'long'}).toLowerCase();
+                return openingHours.some(schedule => schedule.day === dayOfWeek);
+            }
+        ],
+        onChange: function(selectedDates, dateStr, instance) {
+            updateTimePickerHours(dateStr);
+        }
+    });
+
+    function updateTimePickerHours(selectedDate) {
+        const dayOfWeek = new Date(selectedDate).toLocaleDateString('en-US', {weekday: 'long'}).toLowerCase();
+        const schedule = openingHours.find(s => s.day === dayOfWeek);
+        
+        if (schedule) {
+            const timeSelect = document.querySelector('#reservation_time');
+            timeSelect.innerHTML = ''; // Clear existing options
+
+            const timeChoices = generateTimeChoices(schedule.open, schedule.close);
+            
+            timeChoices.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time;
+                timeSelect.appendChild(option);
+            });
+
+            // Enable the time select
+            timeSelect.disabled = false;
+        } else {
+            console.error('No schedule found for the selected day');
+        }
+    }
+
+    function generateTimeChoices(openTime, closeTime) {
+        const timeChoices = [];
+        const [openHour, openMinute] = openTime.split(':').map(Number);
+        const [closeHour, closeMinute] = closeTime.split(':').map(Number);
+
+        let current = new Date(2000, 0, 1, openHour, openMinute);
+        const end = new Date(2000, 0, 1, closeHour, closeMinute);
+
+        while (current <= end) {
+            timeChoices.push(current.toTimeString().slice(0, 5));
+            current.setMinutes(current.getMinutes() + 30);
+        }
+
+        return timeChoices;
+    }
+
+    // Initialize time picker with first available day's hours if a date is pre-selected
+    const initialDate = document.querySelector('.datepicker').value;
+    if (initialDate) {
+        updateTimePickerHours(initialDate);
+    } else {
+        // Disable time select until a date is chosen
+        document.querySelector('#reservation_time').disabled = true;
+    }
+});
+</script>
+{% endblock %}
