@@ -24,6 +24,7 @@ class Reservation
 
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "Veuillez sélectionner un service.")]
     private ?Service $service = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -92,11 +93,14 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: "date")]
-    private $date;
+    #[ORM\Column(type: 'date')]
+    #[Assert\NotNull(message: "Veuillez sélectionner une date.")]
+    #[Assert\GreaterThanOrEqual("today", message: "La date doit être aujourd'hui ou dans le futur.")]
+    private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(type: "time")]
-    private $time;
+    #[ORM\Column(type: 'time')]
+    #[Assert\NotNull(message: "Veuillez sélectionner une heure.")]
+    private ?\DateTimeInterface $time = null;
 
     public function getDate(): ?\DateTimeInterface
     {

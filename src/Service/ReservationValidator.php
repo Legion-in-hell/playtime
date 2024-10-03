@@ -25,7 +25,7 @@ class ReservationValidator
             $result->addError('La date de réservation doit être dans le futur.');
         }
         
-        $dayOfWeek = strtolower($dateTime->format('l')); // Jour en anglais et en minuscules
+        $dayOfWeek = strtolower($dateTime->format('l'));
         
         $schedule = $company->getSchedules()->filter(function($s) use ($dayOfWeek) {
             return strtolower($s->getDayOfWeek()) === $dayOfWeek;

@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Reservation;
 use App\Entity\Service;
-use App\Entity\SportCompany;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -60,6 +59,7 @@ class ReservationType extends AbstractType
                     $form->add('time', ChoiceType::class, [
                         'choices' => array_combine($timeChoices, $timeChoices),
                         'label' => 'Heure',
+                        'placeholder' => 'Choisissez une heure',
                     ]);
                 }
             }
