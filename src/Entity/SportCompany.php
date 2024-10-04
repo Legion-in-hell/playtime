@@ -23,6 +23,12 @@ class SportCompany extends User
     #[ORM\Column]
     private ?bool $isSubscribed = false;
 
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $latitude = null;
+
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $longitude = null;
+
     #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Service::class, orphanRemoval: true)]
     private Collection $services;
 
@@ -161,6 +167,28 @@ class SportCompany extends User
                 $reservation->setSportCompany(null);
             }
         }
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?float $latitude): static
+    {
+        $this->latitude = $latitude;
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?float $longitude): static
+    {
+        $this->longitude = $longitude;
         return $this;
     }
 }

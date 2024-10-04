@@ -5,6 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 {% endblock %}
 
 {% block body %}
@@ -27,6 +28,11 @@
 </header>
 
 <main class="content">
+    <section class="map-section">
+        <h2 class="section-title">Carte des terrains</h2>
+        <div id="map" style="height: 400px;"></div>
+        <button id="geolocate-btn" class="btn-geolocate">Me localiser</button>
+    </section>
     <section class="venues">
         <h2 class="section-title">Nos terrains</h2>
         <div class="venue-list">
@@ -74,4 +80,43 @@
         <a href="{{ path('app_register_company') }}" class="btn-cta">S'inscrire maintenant</a>
     </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var map = L.map('map').setView([46.603354, 1.888334], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            var companies = {{ sportCompanies|json_encode|raw }};
+
+            companies.forEach(function(company) {
+                if (company.latitude && company.longitude) {
+                    L.marker([company.latitude, company.longitude])
+                        .addTo(map)
+                        .bindPopup(company.name + '<br>' + company.address);
+                }
+            });
+
+            document.getElementById('geolocate-btn').addEventListener('click', function() {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        map.setView([lat, lon], 13);
+                        L.marker([lat, lon]).addTo(map)
+                            .bindPopup('Vous êtes ici')
+                            .openPopup();
+                    });
+                } else {
+                    alert("La géolocalisation n'est pas supportée par votre navigateur");
+                }
+            });
+        });
+    </script>
 {% endblock %}

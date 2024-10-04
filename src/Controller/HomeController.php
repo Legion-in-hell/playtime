@@ -25,8 +25,19 @@ class HomeController extends AbstractController
     {
         $sportCompanies = $this->sportCompanyRepository->findAll();
 
+        $companiesForMap = array_map(function($company) {
+            return [
+                'id' => $company->getId(),
+                'name' => $company->getName(),
+                'address' => $company->getAddress(),
+                'latitude' => $company->getLatitude(),
+                'longitude' => $company->getLongitude(),
+            ];
+        }, $sportCompanies);
+
         return $this->render('/pages/home.html.twig', [
             'sportCompanies' => $sportCompanies,
+            'companiesForMap' => json_encode($companiesForMap),
         ]);
     }
 
