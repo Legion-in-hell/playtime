@@ -5,12 +5,6 @@
   padding: 0;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  color: #333;
-}
-
 /* Hero section */
 .hero {
   background-image: url("../images/header.jpg");
@@ -74,6 +68,8 @@ body {
 /* Venues section */
 .content {
   padding: 4rem 2rem;
+  max-width: 40%;
+  margin: 0 auto;
 }
 
 .section-title {
@@ -88,7 +84,14 @@ body {
   gap: 2rem;
 }
 
+.venue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .venue-card {
+  display: flex;
   background-color: white;
   border-radius: 10px;
   overflow: hidden;
@@ -101,56 +104,102 @@ body {
 }
 
 .venue-image {
+  flex: 0 0 300px;
+  overflow: hidden;
+}
+
+.venue-image img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
 }
 
+.venue-details,
 .venue-info {
+  flex: 1;
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .venue-name {
   font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  color: #333;
 }
 
+.venue-features,
 .venue-details {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.venue-address {
+  gap: 1.5rem;
   margin-bottom: 1rem;
   font-size: 0.9rem;
   color: #666;
+  flex-direction: row;
+}
+
+.venue-feature,
+.venue-address {
+  display: flex;
+  align-items: center;
+}
+
+.address-icon {
+  width: 15px;
+  margin-right: 5px;
+}
+
+.feature-icon {
+  fill: #0e7c00;
+  width: 30px;
+  margin-right: 5px;
 }
 
 .venue-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto;
+  flex-direction: column;
 }
 
 .venue-price {
   font-weight: bold;
   color: #4caf50;
+  font-size: 1.1rem;
 }
 
-.btn-details {
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-details,
+.btn-book {
   padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
   text-decoration: none;
   border-radius: 5px;
   transition: background-color 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-details {
+  background-color: #007bff;
+  color: white;
 }
 
 .btn-details:hover {
   background-color: #0056b3;
+}
+
+.btn-book {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-book:hover {
+  background-color: #45a049;
 }
 
 /* CTA section */
@@ -205,5 +254,88 @@ body {
 
   .venue-grid {
     grid-template-columns: 1fr;
+  }
+
+  .venue-card {
+    flex-direction: column;
+  }
+
+  .venue-image {
+    flex: 0 0 200px;
+  }
+
+  .venue-features,
+  .venue-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .venue-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .btn-details,
+  .btn-book {
+    width: 100%;
+    text-align: center;
+  }
+}
+.venue-info {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.venue-features {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.venue-feature {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.venue-address {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .venue-card {
+    flex-direction: column;
+  }
+
+  .venue-image {
+    flex: 0 0 200px;
+  }
+
+  .venue-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .btn-details,
+  .btn-book {
+    width: 100%;
+    text-align: center;
   }
 }

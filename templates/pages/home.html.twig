@@ -29,16 +29,34 @@
 <main class="content">
     <section class="venues">
         <h2 class="section-title">Nos terrains</h2>
-        <div class="venue-grid">
+        <div class="venue-list">
             {% for company in sportCompanies %}
                 <div class="venue-card">
-                    <img src="{{ asset('images/placeholder-venue.jpg') }}" alt="{{ company.name }}" class="venue-image">
+                    <div class="venue-image">
+                        <img src="{{ asset('images/header.jpg') }}" alt="{{ company.name }}">
+                    </div>
                     <div class="venue-info">
                         <h3 class="venue-name">{{ company.name }}</h3>
-                        <p class="venue-address">{{ company.address }}</p>
+                        <div class="venue-features">
+                            <div class="venue-feature">
+                                <img src="{{ asset('images/terrain.webp') }}" alt="Terrain" class="feature-icon">
+                                <span>{{ company.services|length }} Terrain{% if company.services|length > 1 %}s{% endif %}</span>
+                            </div>
+                            <div class="venue-feature">
+                                <img src="{{ asset('images/gazon.webp') }}" alt="Surface" class="feature-icon">
+                                <span>Synthétique</span>
+                            </div>
+                        </div>
+                        <div class="venue-address">
+                            <img src="{{ asset('images/localisation.webp') }}" alt="Adresse" class="address-icon">
+                            <span>{{ company.address }}</span>
+                        </div>
                         <div class="venue-actions">
-                            {# <span class="venue-price">À partir de {{ company.price }}€/heure</span> #}
-                            <a href="{{ path('company_details', {'id': company.id}) }}" class="btn-details">Voir détails</a>
+                            <span class="venue-price">A partir de {{ company.services[0].price ?? 'N/A' }}€</span>
+                            <div class="action-buttons">
+                                <a href="{{ path('company_details', {'id': company.id}) }}" class="btn-details">Voir Details</a>
+                                <a href="#" class="btn-book">Réserver</a>
+                            </div>
                         </div>
                     </div>
                 </div>
