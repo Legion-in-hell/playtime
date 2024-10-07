@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 class HomeController extends AbstractController
 {
     private $entityManager;
@@ -23,7 +24,7 @@ class HomeController extends AbstractController
     #[Route('/', name: 'home')]
     public function index(Request $request): Response
     {
-        $sportCompanies = $this->sportCompanyRepository->findAll();
+        $sportCompanies = $this->sportCompanyRepository->findAllWithImages();
 
         $companiesForMap = array_map(function($company) {
             return [

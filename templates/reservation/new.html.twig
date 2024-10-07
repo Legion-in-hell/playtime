@@ -3,85 +3,46 @@
 {% block title %}Nouvelle réservation - {{ company.name }}{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        .reservation-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #007bff;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-        .opening-hours {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-        }
-        .opening-hours ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .opening-hours li {
-            margin-bottom: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/new.css') }}">
 {% endblock %}
 
 {% block body %}
-<div class="reservation-container">
-    <h1>Nouvelle réservation chez {{ company.name }}</h1>
+<div class="global">
+<div class="res-container">
+    <h1 class="res-title">Nouvelle réservation chez {{ company.name }}</h1>
 
-    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-        <div class="form-group">
-            {{ form_label(form.service) }}
-            {{ form_widget(form.service, {'attr': {'class': 'form-control'}}) }}
+    {{ form_start(form, {'attr': {'class': 'res-form needs-validation', 'novalidate': 'novalidate'}}) }}
+        <div class="res-form-group">
+            {{ form_label(form.service, null, {'label_attr': {'class': 'res-form-label'}}) }}
+            {{ form_widget(form.service, {'attr': {'class': 'res-form-control'}}) }}
             {{ form_errors(form.service) }}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.date) }}
-            {{ form_widget(form.date, {'attr': {'class': 'form-control datepicker'}}) }}
+        <div class="res-form-group">
+            {{ form_label(form.date, null, {'label_attr': {'class': 'res-form-label'}}) }}
+            {{ form_widget(form.date, {'attr': {'class': 'res-form-control res-datepicker'}}) }}
             {{ form_errors(form.date) }}
         </div>
 
-        <div class="form-group">
-            {{ form_label(form.time) }}
-            {{ form_widget(form.time, {'attr': {'class': 'form-control'}}) }}
+        <div class="res-form-group">
+            {{ form_label(form.time, null, {'label_attr': {'class': 'res-form-label'}}) }}
+            {{ form_widget(form.time, {'attr': {'class': 'res-form-control'}}) }}
             {{ form_errors(form.time) }}
         </div>
 
-        <button type="submit" class="btn btn-primary">Réserver</button>
+        <button type="submit" class="res-btn res-btn-primary">Réserver</button>
     {{ form_end(form) }}
 
-    <div class="opening-hours">
-        <h2>Horaires d'ouverture</h2>
-        <ul>
+    <div class="res-opening-hours">
+        <h2 class="res-subtitle">Horaires d'ouverture</h2>
+        <ul class="res-hours-list">
         {% for schedule in company.schedules %}
             <li><strong>{{ schedule.dayOfWeek|capitalize }}</strong>: {{ schedule.openingTime|date('H:i') }} - {{ schedule.closingTime|date('H:i') }}</li>
         {% endfor %}
         </ul>
     </div>
+</div>
 </div>
 {% endblock %}
 

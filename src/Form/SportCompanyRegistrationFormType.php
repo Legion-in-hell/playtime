@@ -25,6 +25,8 @@ class SportCompanyRegistrationFormType extends AbstractType
             ->add('lastName', TextType::class)
             ->add('phoneNumber', TextType::class)
             ->add('address', TextType::class)
+            ->add('postalCode', TextType::class)
+            ->add('city', TextType::class)
             ->add('phoneNumber', TextType::class)
             ->add('description', TextareaType::class)
             ->add('plainPassword', PasswordType::class, [

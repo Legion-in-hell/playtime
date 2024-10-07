@@ -10,6 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use App\Form\CompanyImageType;
 
 class SportCompanyType extends AbstractType
 {
@@ -23,7 +26,15 @@ class SportCompanyType extends AbstractType
             ->add('lastName', TextType::class, ['label' => 'Nom'])
             ->add('phoneNumber', TelType::class, ['label' => 'Numéro de téléphone'])
             ->add('address', TextType::class, ['label' => 'Adresse'])
+            ->add('postalCode', TextType::class, ['label' => 'Code postal'])
+            ->add('city', TextType::class, ['label' => 'Ville'])
             ->add('description', TextareaType::class)
+            ->add('images', CollectionType::class, [
+                'entry_type' => CompanyImageType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+            ])
             ->add('isSubscribed', CheckboxType::class, ['label' => 'Abonné', 'required' => false]);
     }
 

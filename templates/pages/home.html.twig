@@ -30,8 +30,13 @@
 <main class="content">
     <section class="map-section">
         <h2 class="section-title">Carte des terrains</h2>
-        <div id="map" style="height: 400px;"></div>
-        <button id="geolocate-btn" class="btn-geolocate">Me localiser</button>
+        <div class="map-container">
+            <div class="map-actions">
+                <button id="geolocate-btn" class="btn-geolocate btn-details">Me géolocaliser</button>
+                <input type="text" id="search-input" class="search-input" placeholder="Rechercher un lieu">
+            </div>
+            <div id="map" style="height: 400px;"></div>
+        </div>
     </section>
     <section class="venues">
         <h2 class="section-title">Nos terrains</h2>
@@ -39,7 +44,11 @@
             {% for company in sportCompanies %}
                 <div class="venue-card">
                     <div class="venue-image">
+                    {% if company.images.first %}
+                        <img src="{{ vich_uploader_asset(image, 'imageFile')}}" alt="{{ company.name }}">
+                    {% else %}
                         <img src="{{ asset('images/header.jpg') }}" alt="{{ company.name }}">
+                    {% endif %}
                     </div>
                     <div class="venue-info">
                         <h3 class="venue-name">{{ company.name }}</h3>
@@ -55,7 +64,7 @@
                         </div>
                         <div class="venue-address">
                             <img src="{{ asset('images/localisation.webp') }}" alt="Adresse" class="address-icon">
-                            <span>{{ company.address }}</span>
+                            <span>{{ company.address }} à {{ company.city }} ({{ company.postalCode }})</span>
                         </div>
                         <div class="venue-actions">
                             <span class="venue-price">A partir de {{ company.services[0].price ?? 'N/A' }}€</span>
@@ -87,13 +96,13 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var map = L.map('map').setView([46.603354, 1.888334], 6);
+            var map = L.map('map').setView([46.603354, 1.888334], 5);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            var companies = {{ sportCompanies|json_encode|raw }};
+            var companies = {{ companiesForMap|raw }};
 
             companies.forEach(function(company) {
                 if (company.latitude && company.longitude) {

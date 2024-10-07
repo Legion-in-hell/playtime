@@ -20,6 +20,9 @@ class SportCompany extends User
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: CompanyImage::class, cascade: ['persist', 'remove'])]
+    private Collection $images;
+
     #[ORM\Column]
     private ?bool $isSubscribed = false;
 
@@ -38,11 +41,18 @@ class SportCompany extends User
     #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Reservation::class, orphanRemoval: true)]
     private Collection $reservations;
 
+    #[ORM\Column(length: 255)]
+    private ?string $PostalCode = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $City = null;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
         $this->schedules = new ArrayCollection();
         $this->reservations = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getName(): ?string
@@ -189,6 +199,57 @@ class SportCompany extends User
     public function setLongitude(?float $longitude): static
     {
         $this->longitude = $longitude;
+        return $this;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->PostalCode;
+    }
+
+    public function setPostalCode(string $PostalCode): static
+    {
+        $this->PostalCode = $PostalCode;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->City;
+    }
+
+    public function setCity(string $City): static
+    {
+        $this->City = $City;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CompanyImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(CompanyImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setSportCompany($this);
+        }
+        return $this;
+    }
+
+    public function removeImage(CompanyImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            if ($image->getSportCompany() === $this) {
+                $image->setSportCompany(null);
+            }
+        }
         return $this;
     }
 }

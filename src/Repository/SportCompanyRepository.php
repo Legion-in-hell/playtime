@@ -16,6 +16,15 @@ class SportCompanyRepository extends ServiceEntityRepository
         parent::__construct($registry, SportCompany::class);
     }
 
+    public function findAllWithImages(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.images', 'i')
+            ->addSelect('i')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return SportCompany[] Returns an array of SportCompany objects
     //     */

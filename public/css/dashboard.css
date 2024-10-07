@@ -12,7 +12,6 @@
 
 /* Styles généraux */
 body {
-  font-family: "Arial", sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
@@ -31,6 +30,7 @@ body {
   padding: 20px;
   border-radius: 5px;
   margin-bottom: 20px;
+  margin-top: 79px;
 }
 
 .dashboard-header h1 {

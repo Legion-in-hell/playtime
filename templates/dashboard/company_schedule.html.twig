@@ -1,10 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des horaires - {{ company.name }}{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/scheduleAndService.css') }}">
+{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <h1>Gestion des horaires - {{ company.name }}</h1>
+<div class="cm-container">
+    <h1 class="cm-title">Gestion des horaires - {{ company.name }}</h1>
 
     {% for message in app.flashes('success') %}
         <div class="alert alert-success">
@@ -12,8 +15,8 @@
         </div>
     {% endfor %}
 
-    <h2>Horaires actuels</h2>
-    <table class="table">
+    <h2 class="cm-subtitle">Horaires actuels</h2>
+    <table class="cm-table">
         <thead>
             <tr>
                 <th>Jour</th>
@@ -29,10 +32,10 @@
                 <td>{{ schedule.openingTime|date('H:i') }}</td>
                 <td>{{ schedule.closingTime|date('H:i') }}</td>
                 <td>
-                    <a href="{{ path('schedule_edit', {'id': schedule.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                    <a href="{{ path('schedule_edit', {'id': schedule.id}) }}" class="cm-btn cm-btn-primary">Modifier</a>
                     <form action="{{ path('schedule_delete', {'id': schedule.id}) }}" method="post" class="d-inline">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ schedule.id) }}">
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet horaire ?')">Supprimer</button>
+                        <button type="submit" class="cm-btn cm-btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet horaire ?')">Supprimer</button>
                     </form>
                 </td>
             </tr>
@@ -44,20 +47,20 @@
         </tbody>
     </table>
 
-    <h2>Ajouter un nouvel horaire</h2>
-    {{ form_start(form) }}
+    <h2 class="cm-subtitle">Ajouter un nouvel horaire</h2>
+    {{ form_start(form, {'attr': {'class': 'cm-form'}}) }}
     <div class="row">
-        <div class="col">
-            {{ form_row(form.dayOfWeek) }}
+        <div class="col cm-form-group">
+            {{ form_row(form.dayOfWeek, {'attr': {'class': 'cm-form-control'}}) }}
         </div>
-        <div class="col">
-            {{ form_row(form.openingTime) }}
+        <div class="col cm-form-group">
+            {{ form_row(form.openingTime, {'attr': {'class': 'cm-form-control'}}) }}
         </div>
-        <div class="col">
-            {{ form_row(form.closingTime) }}
+        <div class="col cm-form-group">
+            {{ form_row(form.closingTime, {'attr': {'class': 'cm-form-control'}}) }}
         </div>
     </div>
-    <button type="submit" class="btn btn-success">Ajouter l'horaire</button>
+    <button type="submit" class="cm-btn cm-btn-success">Ajouter l'horaire</button>
     {{ form_end(form) }}
 </div>
 {% endblock %}

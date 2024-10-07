@@ -7,6 +7,7 @@ use App\Entity\SportCompany;
 use App\Form\StandardUserRegistrationFormType;
 use App\Form\SportCompanyRegistrationFormType;
 use App\Security\EmailVerifier;
+use App\Service\GeocodingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -64,13 +65,21 @@ class RegistrationController extends AbstractController
     }
     
     #[Route('/register/company', name: 'app_register_company')]
-    public function registerCompany(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    public function registerCompany(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, GeocodingService $geocodingService): Response
     {
         $company = new SportCompany();
         $form = $this->createForm(SportCompanyRegistrationFormType::class, $company);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $adress = $company->getAddress() . ' ' . $company->getPostalCode() . ' ' . $company->getCity();
+            $coordinates = $geocodingService->geocodeAdress($adress);
+
+            if ($coordinates) {
+                $company->setLatitude($coordinates['latitude']);
+                $company->setLongitude($coordinates['longitude']);
+            }
+
             $company->setRoles(['ROLE_COMPANY']);
             $company->setPassword(
                 $userPasswordHasher->hashPassword(

@@ -1,107 +1,125 @@
-.containerNew {
-  max-width: 800px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Styles pour la page de nouvelle réservation */
+
+.res-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #ffffff;
   border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1,
-h2 {
+.global {
+  margin-top: 99px;
+}
+
+#navbar {
+  top: 0;
+}
+
+.res-title {
+  font-size: 1.8rem;
   color: #333;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
-form {
+.res-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.res-form-group {
   display: flex;
   flex-direction: column;
 }
 
-form > div {
-  margin-bottom: 15px;
+.res-form-label {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
 }
 
-label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  display: block;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-textarea {
+.res-form-control {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  box-sizing: border-box;
+  transition: border-color 0.3s ease;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="tel"]:focus,
-textarea:focus {
-  border-color: #007bff;
+.res-form-control:focus {
   outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-button[type="submit"] {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
+.res-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
   transition: background-color 0.3s ease;
 }
 
-button[type="submit"]:hover {
+.res-btn-primary {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.res-btn-primary:hover {
   background-color: #0056b3;
 }
 
-.opening-hour-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+.res-opening-hours {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
 }
 
-.opening-hour-item > div {
-  flex: 1;
-  margin-right: 10px;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  justify-content: space-around;
+.res-subtitle {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 1rem;
 }
 
-.opening-hour-item button {
-  background-color: #dc3545;
-  border: none;
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
+.res-hours-list {
+  list-style-type: none;
+  padding: 0;
 }
 
-.opening-hour-item button:hover {
-  background-color: #c82333;
+.res-hours-list li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
 }
 
-.add-opening-hour {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
+/* Styles pour Flatpickr */
+.flatpickr-calendar {
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.add-opening-hour:hover {
-  background-color: #218838;
+.flatpickr-day.selected {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .res-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .res-title {
+    font-size: 1.5rem;
+  }
+
+  .res-btn {
+    width: 100%;
+  }
 }
