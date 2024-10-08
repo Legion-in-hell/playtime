@@ -35,6 +35,9 @@ class SportCompany extends User
     #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Service::class, orphanRemoval: true)]
     private Collection $services;
 
+    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Terrain::class, orphanRemoval: true)]
+    private Collection $terrains;
+
     #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Schedule::class, orphanRemoval: true)]
     private Collection $schedules;
 
@@ -53,6 +56,7 @@ class SportCompany extends User
         $this->schedules = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->terrains = new ArrayCollection();
     }
 
     public function getName(): ?string
@@ -248,6 +252,33 @@ class SportCompany extends User
         if ($this->images->removeElement($image)) {
             if ($image->getSportCompany() === $this) {
                 $image->setSportCompany(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Terrain>
+     */
+    public function getTerrains(): Collection
+    {
+        return $this->terrains;
+    }
+
+    public function addTerrain(Terrain $terrain): static
+    {
+        if (!$this->terrains->contains($terrain)) {
+            $this->terrains->add($terrain);
+            $terrain->setSportCompany($this);
+        }
+        return $this;
+    }
+
+    public function removeTerrain(Terrain $terrain): static
+    {
+        if ($this->terrains->removeElement($terrain)) {
+            if ($terrain->getSportCompany() === $this) {
+                $terrain->setSportCompany(null);
             }
         }
         return $this;

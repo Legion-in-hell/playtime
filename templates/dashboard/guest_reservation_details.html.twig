@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de la réservation invité{% endblock %}
+
+{% block body %}
+    <h1>Détails de la réservation invité</h1>
+
+    <div class="reservation-details">
+        <p><strong>Service:</strong> {{ reservation.service.name }}</p>
+        <p><strong>Date et heure:</strong> {{ reservation.dateTime|date('d/m/Y H:i') }}</p>
+        <p><strong>Nom du client:</strong> {{ reservation.clientFirstName }} {{ reservation.clientLastName }}</p>
+        <p><strong>Email du client:</strong> {{ reservation.clientEmail }}</p>
+        {% if reservation.clientPhone %}
+            <p><strong>Téléphone du client:</strong> {{ reservation.clientPhone }}</p>
+        {% endif %}
+    </div>
+
+    <a href="{{ path('company_dashboard') }}" class="btn btn-primary">Retour au tableau de bord</a>
+</div>
+{% endblock %}
