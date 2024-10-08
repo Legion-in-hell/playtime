@@ -54,7 +54,7 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->sendVerificationEmail($user);
+            // $this->sendVerificationEmail($user);
 
             return $this->redirectToRoute('app_login');
         }
@@ -91,7 +91,7 @@ class RegistrationController extends AbstractController
             $entityManager->persist($company);
             $entityManager->flush();
 
-            $this->sendVerificationEmail($company);
+            // $this->sendVerificationEmail($company);
 
             return $this->redirectToRoute('app_login');
         }
