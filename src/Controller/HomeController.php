@@ -45,19 +45,31 @@ class HomeController extends AbstractController
     #[Route('/search', name: 'search_results')]
     public function search(Request $request): Response
     {
-        $searchTerm = $request->query->get('search');
-        $results = [];
+        $venue = $request->query->get('venue');
+        $date = $request->query->get('date');
 
-        if ($searchTerm) {
-            $results = $this->sportCompanyRepository->findBySearchTerm($searchTerm);
-            $this->addFlash('info', "Résultats de recherche pour: " . $searchTerm);
+        if (!$venue || !$date) {
+            $this->addFlash('error', 'Veuillez sélectionner un lieu et une date.');
+            return $this->redirectToRoute('home');
         }
 
-        return $this->render('/pages/home.html.twig', [
-            'search_results' => $results,
-        ]);
-    }
+        $user = $this->getUser();
 
+        if ($user) {
+            // L'utilisateur est connecté, redirigez-le vers la page de réservation
+            return $this->redirectToRoute('reservation_page', [
+                'venue' => $venue,
+                'date' => $date
+            ]);
+        } else {
+            // L'utilisateur n'est pas connecté, redirigez-le vers la page d'inscription "Joueur"
+            return $this->redirectToRoute('app_register', [
+                'venue' => $venue,
+                'date' => $date
+            ]);
+        }
+    }
+    
     #[Route('/company/{id}', name: 'company_details')]
     public function companyDetails(SportCompany $sportCompany): Response
     {

@@ -19,10 +19,10 @@ class CompanyImage
     #[ORM\Column(length: 255)]
     private ?string $filename = null;
 
-    #[Vich\UploadableField(mapping: 'company_images', fileNameProperty: 'filename')]
+    #[Vich\UploadableField(mapping: 'company_images', fileNameProperty: 'filename', size: 'imageSize')]
     private ?File $imageFile = null;
 
-    #[ORM\ManyToOne(inversedBy: 'images')]
+    #[ORM\ManyToOne(inversedBy: 'images' , targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 

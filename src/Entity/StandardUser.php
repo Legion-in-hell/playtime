@@ -13,7 +13,7 @@ class StandardUser extends User
     #[ORM\Column(length: 255)]
     private ?string $address = null;
 
-    #[ORM\OneToMany(mappedBy: 'standardUser', targetEntity: Reservation::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'standardUser', targetEntity: Reservation::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $reservations;
 
     public function __construct()

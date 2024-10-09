@@ -16,13 +16,13 @@
         <h1>Votre match, maintenant !</h1>
         <div class="search-container">
             <form class="search-form" action="{{ path('search_results') }}" method="get">
-                <select name="venue" class="search-input">
+                <select name="venue" class="search-input" required>
                     <option value="">Choisissez un lieu</option>
                     {% for company in sportCompanies %}
                         <option value="{{ company.id }}">{{ company.name }}</option>
                     {% endfor %}
                 </select>
-                <input type="date" name="date" class="search-input" placeholder="Date">
+                <input type="date" name="date" class="search-input" required placeholder="Date">
                 <button type="submit" class="search-button">Rechercher</button>
             </form>
         </div>
@@ -30,15 +30,6 @@
 </header>
 
 <main class="content">
-    <section class="map-section">
-        <h2 class="section-title">Carte des terrains</h2>
-        <div class="map-container">
-            <div class="map-actions">
-                <button id="geolocate-btn" class="btn-geolocate btn-details">Me géolocaliser</button>
-                <input type="text" id="search-input" class="search-input-map" placeholder="Rechercher un lieu"><i class="fa-solid fa-magnifying-glass search-map-btn"></i>
-            </div>
-            <div id="map" style="height: 400px;"></div>
-        </div>
 <section class="venues">
     <h2 class="section-title">Nos terrains</h2>
     <div class="venue-list">
@@ -85,6 +76,15 @@
         {% endfor %}
     </div>
 </section>
+    <section class="map-section">
+        <h2 class="section-title">Carte des terrains</h2>
+        <div class="map-container">
+            <div class="map-actions">
+                <button id="geolocate-btn" class="btn-geolocate btn-details">Me géolocaliser</button>
+                <input type="text" id="search-input" class="search-input-map" placeholder="Rechercher un lieu"><i class="fa-solid fa-magnifying-glass search-map-btn"></i>
+            </div>
+            <div id="map" style="height: 400px;"></div>
+        </div>
 </main>
 
 <section class="cta">

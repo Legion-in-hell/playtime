@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ReservationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 class Reservation
@@ -13,16 +14,25 @@ class Reservation
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    
+    #[ORM\Column(type: 'date')]
+    #[Assert\NotNull(message: "Veuillez sélectionner une date.")]
+    #[Assert\GreaterThanOrEqual("today", message: "La date doit être aujourd'hui ou dans le futur.")]
+    private ?\DateTimeInterface $date = null;
+    
+    #[ORM\Column(type: 'time')]
+    #[Assert\NotNull(message: "Veuillez sélectionner une heure.")]
+    private ?\DateTimeInterface $time = null;
+    
+    #[ORM\ManyToOne(inversedBy: 'reservations', targetEntity: StandardUser::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?StandardUser $standardUser = null;
 
-    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\ManyToOne(inversedBy: 'reservations', targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 
-    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\ManyToOne(inversedBy: 'reservations', targetEntity: Service::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "Veuillez sélectionner un service.")]
     private ?Service $service = null;
@@ -93,14 +103,6 @@ class Reservation
         return $this;
     }
 
-    #[ORM\Column(type: 'date')]
-    #[Assert\NotNull(message: "Veuillez sélectionner une date.")]
-    #[Assert\GreaterThanOrEqual("today", message: "La date doit être aujourd'hui ou dans le futur.")]
-    private ?\DateTimeInterface $date = null;
-
-    #[ORM\Column(type: 'time')]
-    #[Assert\NotNull(message: "Veuillez sélectionner une heure.")]
-    private ?\DateTimeInterface $time = null;
 
     public function getDate(): ?\DateTimeInterface
     {

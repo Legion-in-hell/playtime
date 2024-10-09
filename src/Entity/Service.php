@@ -24,11 +24,11 @@ class Service
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\ManyToOne(inversedBy: 'services')]
+    #[ORM\ManyToOne(inversedBy: 'services', targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 
-    #[ORM\OneToMany(mappedBy: 'service', targetEntity: Reservation::class)]
+    #[ORM\OneToMany(mappedBy: 'service', targetEntity: Reservation::class, cascade: ['persist', 'remove'])]
     private Collection $reservations;
 
     public function __construct()

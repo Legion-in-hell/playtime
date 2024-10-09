@@ -13,14 +13,14 @@ class GuestReservation
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: Service::class)]
+    #[ORM\ManyToOne(targetEntity: Service::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private $service;
 
     #[ORM\Column(type: 'datetime')]
     private $dateTime;
 
-    #[ORM\ManyToOne(targetEntity: SportCompany::class)]
+    #[ORM\ManyToOne(targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private $sportCompany;
 

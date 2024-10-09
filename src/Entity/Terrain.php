@@ -25,7 +25,7 @@ class Terrain
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(inversedBy: 'terrains')]
+    #[ORM\ManyToOne(inversedBy: 'terrains', targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 
