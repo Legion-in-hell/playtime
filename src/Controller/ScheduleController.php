@@ -26,6 +26,9 @@ class ScheduleController extends AbstractController
 public function manageSchedule(Request $request): Response
 {
     $company = $this->getUser();
+if (!$company instanceof SportCompany) {
+    throw $this->createAccessDeniedException('Vous devez être connecté en tant qu\'entreprise.');
+}
     $schedule = new Schedule();
     $form = $this->createForm(ScheduleType::class, $schedule);
     
@@ -38,6 +41,12 @@ public function manageSchedule(Request $request): Response
         $this->addFlash('success', 'Nouvel horaire ajouté avec succès.');
         return $this->redirectToRoute('company_schedule');
     }
+
+    if ($form->isSubmitted() && !$form->isValid()) {
+        foreach ($form->getErrors(true) as $error) {
+            $this->addFlash('error', $error->getMessage());
+        }
+    }
     
     return $this->render('dashboard/company_schedule.html.twig', [
         'company' => $company,
@@ -47,7 +56,7 @@ public function manageSchedule(Request $request): Response
 
     #[Route('/schedule/new/{id}', name: 'schedule_new')]
     #[IsGranted('ROLE_COMPANY')]
-    public function new(Request $request, EntityManagerInterface $entityManager, SportCompany $sportCompany): Response
+    public function addSchedule(Request $request, EntityManagerInterface $entityManager, SportCompany $sportCompany): Response
     {
         $schedule = new Schedule();
         $schedule->setSportCompany($sportCompany);

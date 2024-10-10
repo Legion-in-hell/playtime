@@ -13,7 +13,7 @@
 <div class="res-container">
     <h1 class="res-title">Nouvelle réservation chez {{ company.name }}</h1>
 
-    {{ form_start(form, {'attr': {'class': 'res-form needs-validation', 'novalidate': 'novalidate'}}) }}
+{{ form_start(form, {'attr': {'class': 'res-form needs-validation', 'novalidate': 'novalidate'}, 'method': 'POST'}) }}
         <div class="res-form-group">
             {{ form_label(form.service, null, {'label_attr': {'class': 'res-form-label'}}) }}
             {{ form_widget(form.service, {'attr': {'class': 'res-form-control'}}) }}
