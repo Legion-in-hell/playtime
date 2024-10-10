@@ -48,7 +48,7 @@
     </table>
 
     <h2 class="cm-subtitle">Ajouter un nouvel horaire</h2>
-    {{ form_start(form, {'attr': {'class': 'cm-form'}}) }}
+{{ form_start(form, {'attr': {'class': 'cm-form', 'id': 'schedule-form'}, 'method': 'POST'}) }}
     <div class="row">
         <div class="col cm-form-group">
             {{ form_row(form.dayOfWeek, {'attr': {'class': 'cm-form-control'}}) }}
@@ -61,6 +61,7 @@
         </div>
     </div>
     <button type="submit" class="cm-btn cm-btn-success">Ajouter l'horaire</button>
+    {{ form_widget(form._token) }}
     {{ form_end(form) }}
 </div>
 {% endblock %}

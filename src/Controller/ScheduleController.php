@@ -39,7 +39,7 @@ if (!$company instanceof SportCompany) {
         $this->entityManager->flush();
         
         $this->addFlash('success', 'Nouvel horaire ajouté avec succès.');
-        return $this->redirectToRoute('company_schedule');
+        return $this->redirectToRoute('company_schedule', ['added' => 1]);
     }
 
     if ($form->isSubmitted() && !$form->isValid()) {
