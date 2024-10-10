@@ -3,6 +3,7 @@
 {% block title %}Nouvelle réservation - {{ company.name }}{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="{{ asset('css/new.css') }}">
 {% endblock %}
@@ -54,7 +55,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const openingHours = {{ openingHours|raw }};
 
-            flatpickr(".datepicker", {
+            flatpickr("#reservation_date", {
                 dateFormat: "Y-m-d",
                 minDate: "today",
                 locale: "fr",
@@ -108,7 +109,7 @@
                 return timeChoices;
             }
 
-            const initialDate = document.querySelector('.datepicker').value;
+            const initialDate = document.querySelector('#reservation_date').value;
             if (initialDate) {
                 updateTimePickerHours(initialDate);
             } else {

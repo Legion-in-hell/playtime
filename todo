@@ -1,0 +1,19 @@
+Important:
+
+- La barre de navigation sur le tableau de bord est décalé vers la droite et sort légèrement de l'écran.
+
+- Le calendier doit pouvoir filtrer par terrain.
+
+- Le calendrier sur mobile n'est pas super bien présenter/utilisable.
+
+- Le css de la modification de la fiche établissement n'est pas pris en compte.
+
+- Sur la page d'accueil, la barre de recherche et le bouton recherche se font overlap par la carte.
+
+Medium:
+
+- Résuire l'écart des items de la navbar.
+
+- Ne pas avoir la possibilité de modifié le boolean "Abonné" dans la modification de la fiche entreprise.
+
+Non Important:
