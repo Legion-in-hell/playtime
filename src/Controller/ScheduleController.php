@@ -11,48 +11,59 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Psr\Log\LoggerInterface;
 
 class ScheduleController extends AbstractController
 {
-
     private EntityManagerInterface $entityManager;
+    private LoggerInterface $logger;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
+        $this->logger = $logger;
     }
 
     #[Route('/dashboard/schedule', name: 'company_schedule')]
-public function manageSchedule(Request $request): Response
-{
-    $company = $this->getUser();
-if (!$company instanceof SportCompany) {
-    throw $this->createAccessDeniedException('Vous devez être connecté en tant qu\'entreprise.');
-}
-    $schedule = new Schedule();
-    $form = $this->createForm(ScheduleType::class, $schedule);
-    
-    $form->handleRequest($request);
-    if ($form->isSubmitted() && $form->isValid()) {
-        $schedule->setSportCompany($company);
-        $this->entityManager->persist($schedule);
-        $this->entityManager->flush();
-        
-        $this->addFlash('success', 'Nouvel horaire ajouté avec succès.');
-        return $this->redirectToRoute('company_schedule', ['added' => 1]);
-    }
-
-    if ($form->isSubmitted() && !$form->isValid()) {
-        foreach ($form->getErrors(true) as $error) {
-            $this->addFlash('error', $error->getMessage());
+    public function manageSchedule(Request $request): Response
+    {
+        $company = $this->getUser();
+        if (!$company instanceof SportCompany) {
+            throw $this->createAccessDeniedException('Vous devez être connecté en tant qu\'entreprise.');
         }
+
+        $schedule = new Schedule();
+        $form = $this->createForm(ScheduleType::class, $schedule);
+        
+        $form->handleRequest($request);
+
+        $this->logger->info('Form submitted', [
+            'isSubmitted' => $form->isSubmitted(),
+            'isValid' => $form->isValid(),
+            'data' => $form->getData(),
+        ]);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $schedule->setSportCompany($company);
+            $this->entityManager->persist($schedule);
+            $this->entityManager->flush();
+            
+            $this->addFlash('success', 'Nouvel horaire ajouté avec succès.');
+            return $this->redirectToRoute('company_schedule', ['added' => 1]);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('error', $error->getMessage());
+                $this->logger->error('Form error', ['message' => $error->getMessage()]);
+            }
+        }
+        
+        return $this->render('dashboard/company_schedule.html.twig', [
+            'company' => $company,
+            'form' => $form->createView(),
+        ]);
     }
-    
-    return $this->render('dashboard/company_schedule.html.twig', [
-        'company' => $company,
-        'form' => $form->createView(),
-    ]);
-}
 
     #[Route('/schedule/new/{id}', name: 'schedule_new')]
     #[IsGranted('ROLE_COMPANY')]
