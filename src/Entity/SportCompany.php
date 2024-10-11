@@ -52,7 +52,6 @@ class SportCompany extends User
 
     public function __construct()
     {
-        parent::__construct();
         $this->services = new ArrayCollection();
         $this->terrains = new ArrayCollection();
         $this->schedules = new ArrayCollection();

@@ -25,6 +25,16 @@ class SportCompanyRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    
+    public function findBySearch($venue): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.name LIKE :venue')
+            ->setParameter('venue', '%'.$venue.'%')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return SportCompany[] Returns an array of SportCompany objects
     //     */

@@ -42,30 +42,34 @@ class HomeController extends AbstractController
         ]);
     }
 
+    
     #[Route('/search', name: 'search_results')]
     public function search(Request $request): Response
     {
         $venue = $request->query->get('venue');
         $date = $request->query->get('date');
-
-        if (!$venue || !$date) {
-            $this->addFlash('error', 'Veuillez sélectionner un lieu et une date.');
+    
+        if (!$venue) {
+            $this->addFlash('error', 'Veuillez sélectionner un lieu.');
             return $this->redirectToRoute('home');
         }
-
+    
+        $venues = $this->sportCompanyRepository->findBySearch($venue);
+    
+        if (empty($venues)) {
+            $this->addFlash('error', 'Aucun lieu trouvé pour cette recherche.');
+            return $this->redirectToRoute('home');
+        }
+    
         $user = $this->getUser();
-
+        $id = $venues[0]->getId();
+    
         if ($user) {
-            // L'utilisateur est connecté, redirigez-le vers la page de réservation
-            return $this->redirectToRoute('reservation_page', [
-                'venue' => $venue,
-                'date' => $date
+            return $this->redirectToRoute('make_reservation', [
+                'id' => $id
             ]);
         } else {
-            // L'utilisateur n'est pas connecté, redirigez-le vers la page d'inscription "Joueur"
             return $this->redirectToRoute('app_register', [
-                'venue' => $venue,
-                'date' => $date
             ]);
         }
     }

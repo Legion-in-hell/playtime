@@ -167,6 +167,7 @@ class CompanyDashboardController extends AbstractController
         ]);
     }
 
+    
     #[Route('/dashboard/reservations/calendar', name: 'company_reservations_calendar')]
     #[IsGranted('ROLE_COMPANY')]
     public function getReservationsCalendar(): JsonResponse
@@ -176,10 +177,10 @@ class CompanyDashboardController extends AbstractController
         if (!$user instanceof SportCompany) {
             throw $this->createAccessDeniedException('User not found or not a SportCompany.');
         }
-
+    
         $reservations = $this->entityManager->getRepository(Reservation::class)->findBy(['sportCompany' => $user]);
         $guestReservations = $this->entityManager->getRepository(GuestReservation::class)->findBy(['sportCompany' => $user]);
-
+    
         $events = [];
         foreach ($reservations as $reservation) {
             $events[] = [
@@ -190,7 +191,7 @@ class CompanyDashboardController extends AbstractController
                 'url' => $this->generateUrl('reservation_details', ['id' => $reservation->getId()]),
             ];
         }
-
+    
         foreach ($guestReservations as $guestReservation) {
             $events[] = [
                 'id' => 'guest_' . $guestReservation->getId(),
@@ -200,7 +201,7 @@ class CompanyDashboardController extends AbstractController
                 'url' => $this->generateUrl('guest_reservation_details', ['id' => $guestReservation->getId()]),
             ];
         }
-
+    
         return new JsonResponse($events);
     }
 
