@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ReservationRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -20,12 +19,13 @@ class Reservation
     #[Assert\GreaterThanOrEqual("today", message: "La date doit être aujourd'hui ou dans le futur.")]
     private ?\DateTimeInterface $date = null;
     
+
     #[ORM\Column(type: 'time')]
     #[Assert\NotNull(message: "Veuillez sélectionner une heure.")]
     private ?\DateTimeInterface $time = null;
     
-    #[ORM\ManyToOne(inversedBy: 'reservations', targetEntity: StandardUser::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?StandardUser $standardUser = null;
 
     #[ORM\ManyToOne(inversedBy: 'reservations', targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
@@ -37,11 +37,9 @@ class Reservation
     #[Assert\NotNull(message: "Veuillez sélectionner un service.")]
     private ?Service $service = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $dateTime = null;
-
     #[ORM\Column(length: 20)]
-    private ?string $status = null;
+    #[Assert\Choice(choices: ['pending', 'confirmed', 'canceled'], message: "Veuillez sélectionner un statut valide.")]
+    private ?string $status = 'pending';
 
     public function getId(): ?int
     {
@@ -81,17 +79,6 @@ class Reservation
         return $this;
     }
 
-    public function getDateTime(): ?\DateTimeInterface
-    {
-        return $this->dateTime;
-    }
-
-    public function setDateTime(\DateTimeInterface $dateTime): static
-    {
-        $this->dateTime = $dateTime;
-        return $this;
-    }
-
     public function getStatus(): ?string
     {
         return $this->status;
@@ -126,5 +113,20 @@ class Reservation
         return $this;
     }
 
+    private \DateTimeImmutable $dateTime;
+
+    public function setDateTime(\DateTimeImmutable $dateTime): self
+
+    {
+        $this->dateTime = $dateTime;
+        return $this;
+    }
+
+
+
+    public function getDateTime(): \DateTimeImmutable
+    {
+        return $this->dateTime;
+    }
     
 }

@@ -3,33 +3,24 @@
 namespace App\Form;
 
 use App\Entity\Reservation;
-use App\Entity\Service;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\SportCompany;
+use App\Entity\Service;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Doctrine\ORM\EntityRepository;
+use App\Form\DataTransformer\TimeToStringTransformer;
 
 class ReservationType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $company = $options['company'];
 
         $builder
-            ->add('service', EntityType::class, [
-                'class' => Service::class,
-                'choice_label' => 'name',
-                'query_builder' => function ($er) use ($company) {
-                    return $er->createQueryBuilder('s')
-                        ->where('s.sportCompany = :company')
-                        ->setParameter('company', $company);
-                },
-                'label' => 'Service',
-            ])
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
                 'html5' => false,
@@ -37,50 +28,43 @@ class ReservationType extends AbstractType
                 'label' => 'Date',
             ])
             ->add('time', ChoiceType::class, [
-                'choices' => [],
+                'choices' => $this->getTimeChoices($company),
                 'label' => 'Heure',
-                'placeholder' => 'Choisissez d\'abord une date',
+                'placeholder' => 'Choisissez une heure',
+                'required' => true,
+            ])
+            ->add('service', EntityType::class, [
+                'class' => Service::class,
+                'choice_label' => 'name',
+                'query_builder' => function (EntityRepository $er) use ($company) {
+                    return $er->createQueryBuilder('s')
+                        ->where('s.sportCompany = :company')
+                        ->setParameter('company', $company);
+                },
             ]);
-
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($company) {
-            $form = $event->getForm();
-            $data = $event->getData();
-
-            if (isset($data['date'])) {
-                $date = new \DateTime($data['date']);
-                $dayOfWeek = strtolower($date->format('l'));
-                $schedule = $company->getSchedules()->filter(function($s) use ($dayOfWeek) {
-                    return strtolower($s->getDayOfWeek()) === $dayOfWeek;
-                })->first();
-
-                if ($schedule) {
-                    $timeChoices = $this->generateTimeChoices($schedule->getOpeningTime(), $schedule->getClosingTime());
-
-                    $form->add('time', ChoiceType::class, [
-                        'choices' => array_combine($timeChoices, $timeChoices),
-                        'label' => 'Heure',
-                        'placeholder' => 'Choisissez une heure',
-                    ]);
-                }
-            }
-        });
-    }
-
-    private function generateTimeChoices(\DateTimeInterface $openTime, \DateTimeInterface $closeTime): array
-    {
-        $interval = new \DateInterval('PT30M');
-        $timeChoices = [];
-
-        $current = clone $openTime;
-        while ($current <= $closeTime) {
-            $timeChoices[] = $current->format('H:i');
-            $current->add($interval);
+            $builder->get('time')->addModelTransformer(new TimeToStringTransformer());
         }
 
-        return $timeChoices;
+    private function getTimeChoices(SportCompany $company): array
+    {
+        $choices = [];
+        foreach ($company->getSchedules() as $schedule) {
+            $start = $schedule->getOpeningTime();
+            $end = $schedule->getClosingTime();
+            $interval = new \DateInterval('PT30M');
+            $current = clone $start;
+
+            while ($current <= $end) {
+                $time = $current->format('H:i');
+                $choices[$time] = $time;
+                $current->add($interval);
+            }
+        }
+
+        return $choices;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Reservation::class,

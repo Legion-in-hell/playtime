@@ -28,7 +28,7 @@
                 {% for reservation in reservations %}
                     <div class="reservation-card">
                         <h3>{{ reservation.service.name }}</h3>
-                        <p><strong>Date:</strong> {{ reservation.dateTime|date('d/m/Y H:i') }}</p>
+                        <p><strong>Date:</strong> {{ reservation.date|date('d-m-Y') }} {{ reservation.time|date('H:i') }}</p>
                         <p><strong>Entreprise:</strong> {{ reservation.sportCompany.name }}</p>
                         <p><strong>Statut:</strong> {{ reservation.status }}</p>
                         <a href="{{ path('reservation_details', {'id': reservation.id}) }}" class="btn btn-secondary">Détails</a>

@@ -14,6 +14,15 @@
     <h1 class="res-title">Nouvelle réservation chez {{ company.name }}</h1>
 
 {{ form_start(form, {'attr': {'class': 'res-form needs-validation', 'novalidate': 'novalidate'}, 'method': 'POST'}) }}
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{{ form_errors(form) }}
         <div class="res-form-group">
             {{ form_label(form.service, null, {'label_attr': {'class': 'res-form-label'}}) }}
             {{ form_widget(form.service, {'attr': {'class': 'res-form-control'}}) }}
@@ -76,7 +85,7 @@
                 
                 if (schedule) {
                     const timeSelect = document.querySelector('#reservation_time');
-                    timeSelect.innerHTML = '<option value="">Choisissez une heure</option>'; // Reset with placeholder
+                    timeSelect.innerHTML = '<option value="">Choisissez une heure</option>';
 
                     const timeChoices = generateTimeChoices(schedule.open, schedule.close);
                     

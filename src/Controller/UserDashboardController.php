@@ -3,22 +3,34 @@
 namespace App\Controller;
 
 use App\Entity\StandardUser;
+use App\Entity\Reservation;
 use App\Repository\ReservationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 #[IsGranted('ROLE_USER')]
 class UserDashboardController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+    private ReservationRepository $reservationRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, ReservationRepository $reservationRepository)
+    {
+        $this->entityManager = $entityManager;
+        $this->reservationRepository = $reservationRepository;
+    }
+
     #[Route('/account', name: 'user_dashboard')]
-    public function index(ReservationRepository $reservationRepository): Response
+    public function index(): Response
     {
         /** @var StandardUser $user */
         $user = $this->getUser();
         
-        $reservations = $reservationRepository->findBy(['standardUser' => $user], ['dateTime' => 'DESC']);
+        $reservations = $this->reservationRepository->findBy(['standardUser' => $user], ['date' => 'DESC', 'time' => 'DESC']);
 
         return $this->render('dashboard/user_dashboard.html.twig', [
             'user' => $user,
@@ -27,9 +39,9 @@ class UserDashboardController extends AbstractController
     }
 
     #[Route('/account/edit', name: 'user_edit_profile')]
-
     public function editProfile(): Response
     {
+        /** @var StandardUser $user */
         $user = $this->getUser();
 
         return $this->render('dashboard/user_edit_profile.html.twig', [
@@ -37,83 +49,90 @@ class UserDashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/account/update', name: 'user_update_profile')]
-    public function updateProfile(): Response
+    #[Route('/account/update', name: 'user_update_profile', methods: ['POST'])]
+    public function updateProfile(Request $request): Response
     {
+        /** @var StandardUser $user */
         $user = $this->getUser();
 
-        return $this->render('dashboard/user_update_profile.html.twig', [
-            'user' => $user,
-        ]);
+        // Ajoutez ici la logique pour mettre à jour le profil de l'utilisateur
+        // Utilisez $request->request->get() pour obtenir les données du formulaire
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Votre profil a été mis à jour avec succès.');
+        return $this->redirectToRoute('user_dashboard');
     }
 
     #[Route('/account/reservations', name: 'user_reservations')]
     public function reservations(): Response
     {
+        /** @var StandardUser $user */
         $user = $this->getUser();
+
+        $reservations = $this->reservationRepository->findBy(['standardUser' => $user], ['date' => 'DESC', 'time' => 'DESC']);
 
         return $this->render('dashboard/user_reservations.html.twig', [
             'user' => $user,
+            'reservations' => $reservations,
         ]);
     }
 
     #[Route('/account/reservations/{id}', name: 'user_reservation')]
-    public function reservation(): Response
+    public function reservation(Reservation $reservation): Response
     {
-        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('view', $reservation);
 
         return $this->render('dashboard/user_reservation.html.twig', [
-            'user' => $user,
+            'reservation' => $reservation,
         ]);
     }
 
-    #[Route('/account/reservations/{id}/cancel', name: 'user_cancel_reservation')]
-    public function cancelReservation(): Response
+    #[Route('/account/reservations/{id}/cancel', name: 'user_cancel_reservation', methods: ['POST'])]
+    public function cancelReservation(Reservation $reservation): Response
     {
-        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('edit', $reservation);
 
-        return $this->render('dashboard/user_cancel_reservation.html.twig', [
-            'user' => $user,
-        ]);
+        $reservation->setStatus('cancelled');
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Votre réservation a été annulée avec succès.');
+        return $this->redirectToRoute('user_reservations');
     }
 
     #[Route('/account/reservations/{id}/edit', name: 'user_edit_reservation')]
-    public function editReservation(): Response
+    public function editReservation(Reservation $reservation): Response
     {
-        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('edit', $reservation);
 
         return $this->render('dashboard/user_edit_reservation.html.twig', [
-            'user' => $user,
+            'reservation' => $reservation,
         ]);
     }
 
-    #[Route('/account/reservations/{id}/update', name: 'user_update_reservation')]
-    public function updateReservation(): Response
+    #[Route('/account/reservations/{id}/update', name: 'user_update_reservation', methods: ['POST'])]
+    public function updateReservation(Request $request, Reservation $reservation): Response
     {
-        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('edit', $reservation);
 
-        return $this->render('dashboard/user_update_reservation.html.twig', [
-            'user' => $user,
-        ]);
+        // Ajoutez ici la logique pour mettre à jour la réservation
+        // Utilisez $request->request->get() pour obtenir les données du formulaire
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Votre réservation a été mise à jour avec succès.');
+        return $this->redirectToRoute('user_reservations');
     }
 
-    #[Route('/account/reservations/{id}/delete', name: 'user_delete_reservation')]
-    public function deleteReservation(): Response
+    #[Route('/account/reservations/{id}/delete', name: 'user_delete_reservation', methods: ['POST'])]
+    public function deleteReservation(Reservation $reservation): Response
     {
-        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('delete', $reservation);
 
-        return $this->render('dashboard/user_delete_reservation.html.twig', [
-            'user' => $user,
-        ]);
-    }
+        $this->entityManager->remove($reservation);
+        $this->entityManager->flush();
 
-    #[Route('/account/reservations/{id}/confirm', name: 'user_confirm_reservation')]
-    public function confirmReservation(): Response
-    {
-        $user = $this->getUser();
-
-        return $this->render('dashboard/user_confirm_reservation.html.twig', [
-            'user' => $user,
-        ]);
+        $this->addFlash('success', 'Votre réservation a été supprimée avec succès.');
+        return $this->redirectToRoute('user_reservations');
     }
 }

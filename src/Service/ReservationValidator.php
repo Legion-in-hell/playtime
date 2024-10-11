@@ -3,9 +3,16 @@
 namespace App\Service;
 
 use App\Entity\Reservation;
+use Psr\Log\LoggerInterface;
 
 class ReservationValidator
 {
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
     public function validate(Reservation $reservation): ValidationResult
     {
         $result = new ValidationResult();
@@ -14,40 +21,44 @@ class ReservationValidator
         $date = $reservation->getDate();
         $time = $reservation->getTime();
         
-        if (!$date || !$time) {
-            $result->addError('La date et l\'heure sont requises.');
+        if (!$date instanceof \DateTime || !$time instanceof \DateTime) {
+            $result->addError('La date ou l\'heure de réservation n\'est pas valide.');
             return $result;
         }
+    
+        $dayOfWeek = strtolower($date->format('l'));
+        $timeString = $time->format('H:i');
+    
+    $dayTranslations = [
+        'monday' => 'lundi',
+        'tuesday' => 'mardi',
+        'wednesday' => 'mercredi',
+        'thursday' => 'jeudi',
+        'friday' => 'vendredi',
+        'saturday' => 'samedi',
+        'sunday' => 'dimanche'
+    ];
+    
+    $frenchDayOfWeek = $dayTranslations[$dayOfWeek] ?? $dayOfWeek;
+    
+    $schedule = $company->getSchedules()->filter(function($s) use ($frenchDayOfWeek) {
+        return strtolower($s->getDayOfWeek()) === $frenchDayOfWeek;
+    })->first();
 
-        $dateTime = new \DateTime($date->format('Y-m-d') . ' ' . $time);
+    if (!$schedule) {
+        $result->addError('L\'entreprise est fermée ce jour-là.');
+    } else {
+        $openingTime = $schedule->getOpeningTime()->format('H:i');
+        $closingTime = $schedule->getClosingTime()->format('H:i');
         
-        if ($dateTime <= new \DateTime()) {
-            $result->addError('La date de réservation doit être dans le futur.');
+        if ($timeString < $openingTime || $timeString > $closingTime) {
+            $result->addError('L\'heure de réservation est en dehors des horaires d\'ouverture.');
         }
-        
-        $dayOfWeek = strtolower($dateTime->format('l'));
-        
-        $schedule = $company->getSchedules()->filter(function($s) use ($dayOfWeek) {
-            return strtolower($s->getDayOfWeek()) === $dayOfWeek;
-        })->first();
-        
-        if (!$schedule) {
-            $result->addError('L\'entreprise est fermée ce jour-là.');
-        } else {
-            $openingTime = $schedule->getOpeningTime();
-            $closingTime = $schedule->getClosingTime();
-            
-            $reservationTime = \DateTime::createFromFormat('H:i', $time);
-            
-            if ($reservationTime < $openingTime || $reservationTime > $closingTime) {
-                $result->addError('L\'entreprise est fermée à cette heure-là.');
-            }
-        }
-                
-        return $result;
     }
-}
 
+    return $result;
+}
+}
 class ValidationResult
 {
     private $errors = [];

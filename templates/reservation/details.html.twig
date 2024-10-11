@@ -20,8 +20,13 @@
         </div>
         
         <div class="detail-row">
-            <span class="detail-label">Date et heure :</span>
-            <span class="detail-value">{{ reservation.dateTime|date('d/m/Y H:i') }}</span>
+            <span class="detail-label">Date :</span>
+            <span class="detail-value">{{ reservation.date|date('Y-m-d') }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Heure :</span>
+            <span class="detail-value">{{ reservation.time|date('H:i') }}</span>
         </div>
         
         <div class="detail-row">

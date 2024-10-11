@@ -42,14 +42,8 @@ class ScheduleController extends AbstractController
             $this->entityManager->persist($schedule);
             $this->entityManager->flush();
 
-            $this->logger->info('Form submitted', [
-                'isSubmitted' => $form->isSubmitted(),
-                'isValid' => $form->isValid(),
-                'data' => $form->getData(),
-            ]);
-            
             $this->addFlash('success', 'Nouvel horaire ajouté avec succès.');
-            return $this->redirectToRoute('company_schedule', ['added' => 1]);
+            return $this->redirectToRoute('company_schedule');
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
