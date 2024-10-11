@@ -24,7 +24,7 @@ class Service
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\ManyToOne(inversedBy: 'services', targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'services')]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 

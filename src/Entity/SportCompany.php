@@ -32,16 +32,16 @@ class SportCompany extends User
     #[ORM\Column(type: "float", nullable: true)]
     private ?float $longitude = null;
 
-    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: CompanyImage::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Service::class, cascade: ['persist', 'remove'])]
     private Collection $services;
-
-    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: CompanyImage::class, cascade: ['persist', 'remove'])]
+    
+    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Terrain::class, cascade: ['persist', 'remove'])]
     private Collection $terrains;
-
-    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: CompanyImage::class, cascade: ['persist', 'remove'])]
+    
+    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Schedule::class, cascade: ['persist', 'remove'])]
     private Collection $schedules;
-
-    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: CompanyImage::class, cascade: ['persist', 'remove'])]
+    
+    #[ORM\OneToMany(mappedBy: 'sportCompany', targetEntity: Reservation::class, cascade: ['persist', 'remove'])]
     private Collection $reservations;
 
     #[ORM\Column(length: 255)]
@@ -52,11 +52,12 @@ class SportCompany extends User
 
     public function __construct()
     {
+        parent::__construct();
         $this->services = new ArrayCollection();
+        $this->terrains = new ArrayCollection();
         $this->schedules = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->images = new ArrayCollection();
-        $this->terrains = new ArrayCollection();
     }
 
     public function getName(): ?string

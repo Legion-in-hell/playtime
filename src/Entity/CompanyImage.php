@@ -22,7 +22,7 @@ class CompanyImage
     #[Vich\UploadableField(mapping: 'company_images', fileNameProperty: 'filename', size: 'imageSize')]
     private ?File $imageFile = null;
 
-    #[ORM\ManyToOne(inversedBy: 'images' , targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'images')]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 

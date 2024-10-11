@@ -23,7 +23,7 @@ class Schedule
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $closingTime = null;
 
-    #[ORM\ManyToOne(inversedBy: 'schedules', targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'schedules')]
     #[ORM\JoinColumn(nullable: false)]
     private ?SportCompany $sportCompany = null;
 

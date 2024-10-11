@@ -20,9 +20,9 @@ class GuestReservation
     #[ORM\Column(type: 'datetime')]
     private $dateTime;
 
-    #[ORM\ManyToOne(targetEntity: SportCompany::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'reservations', targetEntity: SportCompany::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private $sportCompany;
+    private ?SportCompany $sportCompany = null;
 
     #[ORM\Column(type: 'string', length: 255)]
     private $clientFirstName;
