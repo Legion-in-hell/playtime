@@ -120,3 +120,11 @@ footer {
 .navbar-toggle.active .bar:nth-child(3) {
   transform: translateY(-8px) rotate(-45deg);
 }
+
+@media screen and (max-width: 768px) {
+  .nav-links {
+    list-style: none;
+    display: block;
+    align-items: center;
+  }
+}

@@ -326,6 +326,17 @@ nav {
     grid-template-columns: 1fr;
   }
 
+  .fc .fc-button-group {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
+    display: none;
+  }
+
   .terrain-card-actions {
     flex-direction: column;
     align-items: stretch;

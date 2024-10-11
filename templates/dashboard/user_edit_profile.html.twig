@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mettre à jour vos informations{% endblock %}
+
+{% block body %}
+    <h1>Mettre à jour vos informations</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.address) }}
+        {{ form_row(form.city) }}
+        {{ form_row(form.postalCode) }}
+        {{ form_row(form.phoneNumber) }}
+        {{ form_row(form.email) }}
+        <button type="submit" class="btn btn-primary">Mettre à jour</button>
+    {{ form_end(form) }}
+{% endblock %}

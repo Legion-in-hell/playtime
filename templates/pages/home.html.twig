@@ -15,15 +15,14 @@
     <div class="hero-content">
         <h1>Votre match, maintenant !</h1>
         <div class="search-container">
-            <form class="search-form" action="{{ path('search_results') }}" method="get">
-                <select name="venue" class="search-input" required>
+            <form id="search-form" class="search-form" onsubmit="redirectToReservation(event)">
+                <select id="venue-select" name="venue" class="search-input" required>
                     <option value="">Choisissez un lieu</option>
                     {% for company in sportCompanies %}
                         <option value="{{ company.id }}">{{ company.name }}</option>
                     {% endfor %}
                 </select>
-                <input type="date" name="date" class="search-input" required placeholder="Date">
-                <button href="{{ path('make_reservation', {'id': company.id}) }}" class="search-button">Rechercher</button>
+                <button type="submit" class="search-button">Rechercher</button>
             </form>
         </div>
     </div>
@@ -80,7 +79,7 @@
         <h2 class="section-title">Carte des terrains</h2>
         <div class="map-container">
             <div class="map-actions">
-                <button id="geolocate-btn" class="btn-geolocate btn-details">Me géolocaliser</button>
+                <button id="geolocate-btn" class="btn-geolocate localisation-btn">Me géolocaliser</button>
                 <input type="text" id="search-input" class="search-input-map" placeholder="Rechercher un lieu"><i class="fa-solid fa-magnifying-glass search-map-btn"></i>
             </div>
             <div id="map" style="height: 400px;"></div>
@@ -99,6 +98,16 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+    function redirectToReservation(event) {
+        event.preventDefault();
+        const venueSelect = document.getElementById('venue-select');
+        const companyId = venueSelect.value;
+        if (companyId) {
+            window.location.href = "{{ path('make_reservation', {'id': 'PLACEHOLDER'}) }}".replace('PLACEHOLDER', companyId);
+        }
+    }
+</script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var map = L.map('map').setView([46.603354, 1.888334], 5);

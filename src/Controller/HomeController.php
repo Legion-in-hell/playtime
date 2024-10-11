@@ -77,6 +77,7 @@ class HomeController extends AbstractController
     #[Route('/company/{id}', name: 'company_details')]
     public function companyDetails(SportCompany $sportCompany): Response
     {
+
         return $this->render('/pages/companyDetails.html.twig', [
             'company' => $sportCompany,
         ]);

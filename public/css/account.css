@@ -4,6 +4,11 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  margin-top: 99px;
+}
+
+nav {
+  top: 0;
 }
 
 .dashboard-section {
