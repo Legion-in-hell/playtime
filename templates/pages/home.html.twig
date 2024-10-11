@@ -20,10 +20,10 @@
                     <option value="">Choisissez un lieu</option>
                     {% for company in sportCompanies %}
                         <option value="{{ company.id }}">{{ company.name }}</option>
+                    {% endfor %}
                 </select>
                 <input type="date" name="date" class="search-input" required placeholder="Date">
                 <button href="{{ path('make_reservation', {'id': company.id}) }}" class="search-button">Rechercher</button>
-                    {% endfor %}
             </form>
         </div>
     </div>
