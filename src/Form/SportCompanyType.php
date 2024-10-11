@@ -34,8 +34,7 @@ class SportCompanyType extends AbstractType
                 'allow_add' => true,
                 'allow_delete' => true,
                 'by_reference' => false,
-            ])
-            ->add('isSubscribed', CheckboxType::class, ['label' => 'Abonné', 'required' => false]);
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

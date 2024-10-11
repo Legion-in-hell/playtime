@@ -113,20 +113,20 @@ class Reservation
         return $this;
     }
 
-    private \DateTimeImmutable $dateTime;
-
-    public function setDateTime(\DateTimeImmutable $dateTime): self
-
+    public function getDateTime(): ?\DateTimeInterface
     {
-        $this->dateTime = $dateTime;
-        return $this;
+        if ($this->date === null || $this->time === null) {
+            return null;
+        }
+        $dateTime = new \DateTime($this->date->format('Y-m-d') . ' ' . $this->time->format('H:i:s'));
+        return $dateTime;
     }
 
-
-
-    public function getDateTime(): \DateTimeImmutable
+    public function setDateTime(\DateTimeInterface $dateTime): self
     {
-        return $this->dateTime;
+        $this->date = $dateTime;
+        $this->time = $dateTime;
+        return $this;
     }
     
 }

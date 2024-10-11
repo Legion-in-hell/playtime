@@ -183,23 +183,31 @@ class CompanyDashboardController extends AbstractController
     
         $events = [];
         foreach ($reservations as $reservation) {
-            $events[] = [
-                'id' => $reservation->getId(),
-                'title' => $reservation->getService()->getName() . ' - ' . $reservation->getStandardUser()->getFirstName() . ' ' . $reservation->getStandardUser()->getLastName(),
-                'start' => $reservation->getDateTime()->format('Y-m-d\TH:i:s'),
-                'end' => $reservation->getDateTime()->modify('+1 hour')->format('Y-m-d\TH:i:s'),
-                'url' => $this->generateUrl('reservation_details', ['id' => $reservation->getId()]),
-            ];
+            $dateTime = $reservation->getDateTime();
+            if ($dateTime !== null) {
+                $events[] = [
+                    'id' => $reservation->getId(),
+                    'title' => $reservation->getService()->getName() . ' - ' . $reservation->getStandardUser()->getFirstName() . ' ' . $reservation->getStandardUser()->getLastName(),
+                    'start' => $dateTime->format('Y-m-d\TH:i:s'),
+                    'end' => (clone $dateTime)->modify('+1 hour')->format('Y-m-d\TH:i:s'),
+                    'url' => $this->generateUrl('reservation_details', ['id' => $reservation->getId()]),
+                    'color' => '#3788d8',
+                ];
+            }
         }
     
         foreach ($guestReservations as $guestReservation) {
-            $events[] = [
-                'id' => 'guest_' . $guestReservation->getId(),
-                'title' => $guestReservation->getService()->getName() . ' - ' . $guestReservation->getClientFirstName() . ' ' . $guestReservation->getClientLastName(),
-                'start' => $guestReservation->getDateTime()->format('Y-m-d\TH:i:s'),
-                'end' => $guestReservation->getDateTime()->modify('+1 hour')->format('Y-m-d\TH:i:s'),
-                'url' => $this->generateUrl('guest_reservation_details', ['id' => $guestReservation->getId()]),
-            ];
+            $dateTime = $guestReservation->getDateTime();
+            if ($dateTime !== null) {
+                $events[] = [
+                    'id' => 'guest_' . $guestReservation->getId(),
+                    'title' => $guestReservation->getService()->getName() . ' - ' . $guestReservation->getClientFirstName() . ' ' . $guestReservation->getClientLastName(),
+                    'start' => $dateTime->format('Y-m-d\TH:i:s'),
+                    'end' => (clone $dateTime)->modify('+1 hour')->format('Y-m-d\TH:i:s'),
+                    'url' => $this->generateUrl('guest_reservation_details', ['id' => $guestReservation->getId()]),
+                    'color' => '#28a745',
+                ];
+            }
         }
     
         return new JsonResponse($events);

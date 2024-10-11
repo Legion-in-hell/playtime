@@ -124,7 +124,7 @@
 
 {% block javascripts %}
 {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/locales/fr.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
@@ -145,7 +145,20 @@ document.addEventListener('DOMContentLoaded', function() {
             week: 'Semaine',
             day: 'Jour'
         },
-        events: "{{ path('company_reservations_calendar') }}",
+        events: {
+            url: "{{ path('company_reservations_calendar') }}",
+            method: 'GET',
+            failure: function() {
+                alert('Erreur lors du chargement des réservations.');
+            }
+        },
+        eventSourceSuccess: function(content, xhr) {
+            console.log('Événements chargés :', content);
+            return content;
+        },
+        eventDidMount: function(info) {
+            console.log('Événement monté :', info.event.title);
+        },
         selectable: true,
         select: function(info) {
             document.getElementById('manual-reservation-form').style.display = 'block';

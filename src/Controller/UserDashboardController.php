@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use App\Form\StandardUserType;
 
 #[IsGranted('ROLE_USER')]
 class UserDashboardController extends AbstractController
@@ -39,13 +40,23 @@ class UserDashboardController extends AbstractController
     }
 
     #[Route('/account/edit', name: 'user_edit_profile')]
-    public function editProfile(): Response
+    public function editProfile(Request $request): Response
     {
         /** @var StandardUser $user */
         $user = $this->getUser();
 
+        $form = $this->createForm(StandardUserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Votre profil a été mis à jour avec succès.');
+            return $this->redirectToRoute('user_dashboard');
+        }
+
         return $this->render('dashboard/user_edit_profile.html.twig', [
-            'user' => $user,
+            'form' => $form->createView(),
         ]);
     }
 
