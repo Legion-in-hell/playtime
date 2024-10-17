@@ -168,6 +168,7 @@ class CompanyDashboardController extends AbstractController
     }
 
     
+    
     #[Route('/dashboard/reservations/calendar', name: 'company_reservations_calendar')]
     #[IsGranted('ROLE_COMPANY')]
     public function getReservationsCalendar(): JsonResponse
@@ -183,37 +184,31 @@ class CompanyDashboardController extends AbstractController
     
         $events = [];
         foreach ($reservations as $reservation) {
-            $dateTime = $reservation->getDateTime();
-            if ($dateTime !== null) {
-                $events[] = [
-                    'id' => $reservation->getId(),
-                    'title' => $reservation->getService()->getName() . ' - ' . $reservation->getStandardUser()->getFirstName() . ' ' . $reservation->getStandardUser()->getLastName(),
-                    'start' => $dateTime->format('Y-m-d\TH:i:s'),
-                    'end' => (clone $dateTime)->modify('+1 hour')->format('Y-m-d\TH:i:s'),
-                    'url' => $this->generateUrl('reservation_details', ['id' => $reservation->getId()]),
-                    'color' => '#3788d8',
-                    'terrain' => $reservation->getTerrain()->getName(),
+            $events[] = [
+                'id' => $reservation->getId(),
+                'title' => $reservation->getStandardUser()->getFirstName() . ' ' . $reservation->getStandardUser()->getLastName() . ' - ' . $reservation->getService()->getName(),
+                'start' => $reservation->getDateTime()->format('Y-m-d\TH:i:s'),
+                'end' => $reservation->getDateTime()->modify('+1 hour')->format('Y-m-d\TH:i:s'),
+                'url' => $this->generateUrl('reservation_details', ['id' => $reservation->getId()]),
+                'extendedProps' => [
                     'terrainId' => $reservation->getTerrain()->getId(),
                     'status' => $reservation->getStatus(),
-                ];
-            }
+                ],
+            ];
         }
     
         foreach ($guestReservations as $guestReservation) {
-            $dateTime = $guestReservation->getDateTime();
-            if ($dateTime !== null) {
-                $events[] = [
-                    'id' => 'guest_' . $guestReservation->getId(),
-                    'title' => $guestReservation->getService()->getName() . ' - ' . $guestReservation->getClientFirstName() . ' ' . $guestReservation->getClientLastName(),
-                    'start' => $dateTime->format('Y-m-d\TH:i:s'),
-                    'end' => (clone $dateTime)->modify('+1 hour')->format('Y-m-d\TH:i:s'),
-                    'url' => $this->generateUrl('guest_reservation_details', ['id' => $guestReservation->getId()]),
-                    'color' => '#28a745',
-                    'terrain' => $guestReservation->getTerrain()->getName(),
+            $events[] = [
+                'id' => 'guest_' . $guestReservation->getId(),
+                'title' => $guestReservation->getClientFirstName() . ' ' . $guestReservation->getClientLastName() . ' - ' . $guestReservation->getService()->getName(),
+                'start' => $guestReservation->getDateTime()->format('Y-m-d\TH:i:s'),
+                'end' => $guestReservation->getDateTime()->modify('+1 hour')->format('Y-m-d\TH:i:s'),
+                'url' => $this->generateUrl('guest_reservation_details', ['id' => $guestReservation->getId()]),
+                'extendedProps' => [
                     'terrainId' => $guestReservation->getTerrain()->getId(),
-                    'status' => 'Réservation manuelle',
-                ];
-            }
+                    'status' => $guestReservation->getStatus(),
+                ],
+            ];
         }
     
         return new JsonResponse($events);
@@ -288,5 +283,35 @@ class CompanyDashboardController extends AbstractController
         }
 
         return $this->redirectToRoute('company_terrains');
+    }
+
+    #[Route('/dashboard/guest-reservation/{id}/validate', name: 'validate_guest_reservation')]
+    public function validateGuestReservation(GuestReservation $reservation, EntityManagerInterface $entityManager): Response
+    {
+        if ($reservation->getSportCompany() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette réservation.');
+        }
+
+        $reservation->setStatus('validated');
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La réservation a été validée avec succès.');
+
+        return $this->redirectToRoute('guest_reservation_details', ['id' => $reservation->getId()]);
+    }
+
+    #[Route('/dashboard/guest-reservation/{id}/cancel', name: 'cancel_guest_reservation')]
+    public function cancelGuestReservation(GuestReservation $reservation, EntityManagerInterface $entityManager): Response
+    {
+        if ($reservation->getSportCompany() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette réservation.');
+        }
+
+        $reservation->setStatus('cancelled');
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La réservation a été annulée avec succès.');
+
+        return $this->redirectToRoute('guest_reservation_details', ['id' => $reservation->getId()]);
     }
 }

@@ -30,6 +30,12 @@
         </div>
 
         <div class="res-form-group">
+            {{ form_label(form.terrain, null, {'label_attr': {'class': 'res-form-label'}}) }}
+            {{ form_widget(form.terrain, {'attr': {'class': 'res-form-control'}}) }}
+            {{ form_errors(form.terrain) }}
+        </div>
+
+        <div class="res-form-group">
             {{ form_label(form.date, null, {'label_attr': {'class': 'res-form-label'}}) }}
             {{ form_widget(form.date, {'attr': {'class': 'res-form-control res-datepicker'}}) }}
             {{ form_errors(form.date) }}

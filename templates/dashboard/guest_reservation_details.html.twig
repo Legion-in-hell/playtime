@@ -2,7 +2,13 @@
 
 {% block title %}Détails de la réservation invité{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/guest_reservation_details.css') }}">
+{% endblock %}
+
 {% block body %}
+<div class="reservation-details-container">
     <h1>Détails de la réservation invité</h1>
 
     <div class="reservation-details">
@@ -13,8 +19,17 @@
         {% if reservation.clientPhone %}
             <p><strong>Téléphone du client:</strong> {{ reservation.clientPhone }}</p>
         {% endif %}
+        <p><strong>Statut:</strong> {{ reservation.status }}</p>
     </div>
 
-    <a href="{{ path('company_dashboard') }}" class="btn btn-primary">Retour au tableau de bord</a>
+    <div class="button-group">
+        {% if reservation.status != 'validated' %}
+            <a href="{{ path('validate_guest_reservation', {'id': reservation.id}) }}" class="btn btn-success">Valider la réservation</a>
+        {% endif %}
+        {% if reservation.status != 'cancelled' %}
+            <a href="{{ path('cancel_guest_reservation', {'id': reservation.id}) }}" class="btn btn-danger">Annuler la réservation</a>
+        {% endif %}
+        <a href="{{ path('company_dashboard') }}" class="btn btn-primary">Retour au tableau de bord</a>
+    </div>
 </div>
 {% endblock %}

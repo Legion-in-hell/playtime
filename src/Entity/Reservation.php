@@ -38,7 +38,7 @@ class Reservation
     private ?Service $service = null;
 
     #[ORM\Column(length: 20)]
-    #[Assert\Choice(choices: ['pending', 'confirmed', 'canceled'], message: "Veuillez sélectionner un statut valide.")]
+    #[Assert\Choice(choices: ['pending', 'validated', 'cancelled'], message: "Veuillez sélectionner un statut valide.")]
     private ?string $status = 'pending';
 
     #[ORM\ManyToOne(targetEntity: Terrain::class ,inversedBy: 'reservations')]

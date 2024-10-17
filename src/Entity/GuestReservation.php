@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\GuestReservationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: GuestReservationRepository::class)]
 class GuestReservation
@@ -39,6 +40,10 @@ class GuestReservation
     #[ORM\ManyToOne(targetEntity: Terrain::class ,inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Terrain $terrain = null;
+
+    #[ORM\Column(length: 20)]
+    #[Assert\Choice(choices: ['pending', 'validated', 'cancelled'], message: "Veuillez sélectionner un statut valide.")]
+    private ?string $status = 'pending';
 
     public function getId(): ?int
     {
@@ -130,6 +135,17 @@ class GuestReservation
     public function setTerrain(?Terrain $terrain): self
     {
         $this->terrain = $terrain;
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
         return $this;
     }
 }

@@ -151,6 +151,18 @@ body {
   color: var(--primary-color);
 }
 
+.fc-daygrid-event-dot-green {
+  border: calc(var(--fc-daygrid-event-dot-width, 8px) / 2) solid #00ff15;
+}
+
+.fc-daygrid-event-dot-orange {
+  border: calc(var(--fc-daygrid-event-dot-width, 8px) / 2) solid #ff9900;
+}
+
+.fc-daygrid-event-dot-red {
+  border: calc(var(--fc-daygrid-event-dot-width, 8px) / 2) solid #ff0000;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .dashboard-nav ul {
@@ -318,6 +330,12 @@ nav {
 
 .terrain-form-submit:hover {
   background-color: #218838;
+}
+
+.fc-event {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Responsive design */

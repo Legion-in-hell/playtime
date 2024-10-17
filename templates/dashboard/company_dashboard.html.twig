@@ -160,6 +160,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Erreur lors du chargement des réservations.');
             }
         },
+eventContent: function(arg) {
+                let statusColor;
+                switch(arg.event.extendedProps.status) {
+                    case 'validated':
+                        statusColor = 'green';
+                        break;
+                    case 'pending':
+                        statusColor = 'orange';
+                        break;
+                    default:
+                        statusColor = 'red';
+                }
+                
+                let dotEl = document.createElement('div');
+                dotEl.className = 'fc-daygrid-event-dot';
+                dotEl.style.borderColor = statusColor;
+
+                let titleEl = document.createElement('div');
+                titleEl.innerHTML = arg.event.title;
+
+                let arrayOfDomNodes = [ dotEl, titleEl ];
+                return { domNodes: arrayOfDomNodes };
+            },
         eventSourceSuccess: function(content, xhr) {
             console.log('Événements chargés :', content);
             return content;
