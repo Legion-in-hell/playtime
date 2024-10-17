@@ -192,6 +192,9 @@ class CompanyDashboardController extends AbstractController
                     'end' => (clone $dateTime)->modify('+1 hour')->format('Y-m-d\TH:i:s'),
                     'url' => $this->generateUrl('reservation_details', ['id' => $reservation->getId()]),
                     'color' => '#3788d8',
+                    'terrain' => $reservation->getTerrain()->getName(),
+                    'terrainId' => $reservation->getTerrain()->getId(),
+                    'status' => $reservation->getStatus(),
                 ];
             }
         }
@@ -206,6 +209,9 @@ class CompanyDashboardController extends AbstractController
                     'end' => (clone $dateTime)->modify('+1 hour')->format('Y-m-d\TH:i:s'),
                     'url' => $this->generateUrl('guest_reservation_details', ['id' => $guestReservation->getId()]),
                     'color' => '#28a745',
+                    'terrain' => $guestReservation->getTerrain()->getName(),
+                    'terrainId' => $guestReservation->getTerrain()->getId(),
+                    'status' => 'Réservation manuelle',
                 ];
             }
         }

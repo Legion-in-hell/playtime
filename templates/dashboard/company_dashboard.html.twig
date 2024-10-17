@@ -98,6 +98,12 @@
 
         <section id="reservations" class="dashboard-section reservations">
             <h2>Vos Réservations</h2>
+            <select id="terrain-filter">
+                <option value="">Tous les terrains</option>
+                {% for terrain in company.terrains %}
+                    <option value="{{ terrain.id }}">{{ terrain.name }}</option>
+                {% endfor %}
+            </select>
             <div id="calendar"></div>
             
             <button id="show-manual-reservation-form" class="btn btn-primary">Ajouter une réservation manuelle</button>
@@ -106,6 +112,7 @@
                 <h3>Nouvelle Réservation Manuelle</h3>
                 {{ form_start(manualReservationForm, {'action': path('company_new_reservation')}) }}
                 {{ form_row(manualReservationForm.service) }}
+                {{ form_row(manualReservationForm.terrain) }}
                 {{ form_row(manualReservationForm.dateTime, {'attr': {'class': 'flatpickr'}}) }}
                 {{ form_row(manualReservationForm.clientFirstName) }}
                 {{ form_row(manualReservationForm.clientLastName) }}
@@ -125,12 +132,13 @@
 {% block javascripts %}
 {{ parent() }}
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/locales/fr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/locales/fr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
+    var terrainFilter = document.getElementById('terrain-filter');
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'fr',
@@ -157,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return content;
         },
         eventDidMount: function(info) {
-            console.log('Événement monté :', info.event.title);
+            console.log('Événement monté :', info.event.title, info.event.extendedProps);
         },
         selectable: true,
         select: function(info) {
@@ -175,7 +183,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
     calendar.render();
+
+    function applyTerrainFilter() {
+        var selectedTerrain = terrainFilter.value;
+        console.log('Terrain sélectionné:', selectedTerrain);
+        
+        calendar.getEvents().forEach(function(event) {
+            var eventTerrainId = event.extendedProps.terrainId || null;
+            if (selectedTerrain === '' || (eventTerrainId !== null && eventTerrainId.toString() === selectedTerrain)) {
+                event.setProp('display', 'auto');
+            } else {
+                event.setProp('display', 'none');
+            }
+        });
+    }
+
+    if (terrainFilter) {
+        terrainFilter.addEventListener('change', function() {
+            applyTerrainFilter();
+        });
+    }
+
+    calendar.on('eventSourceSuccess', function() {
+        applyTerrainFilter();
+    });
 
     flatpickr(".flatpickr", {
         enableTime: true,

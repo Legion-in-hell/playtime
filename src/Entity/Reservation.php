@@ -41,6 +41,10 @@ class Reservation
     #[Assert\Choice(choices: ['pending', 'confirmed', 'canceled'], message: "Veuillez sélectionner un statut valide.")]
     private ?string $status = 'pending';
 
+    #[ORM\ManyToOne(targetEntity: Terrain::class ,inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Terrain $terrain = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -118,14 +122,24 @@ class Reservation
         if ($this->date === null || $this->time === null) {
             return null;
         }
-        $dateTime = new \DateTime($this->date->format('Y-m-d') . ' ' . $this->time->format('H:i:s'));
-        return $dateTime;
+        return new \DateTime($this->date->format('Y-m-d') . ' ' . $this->time->format('H:i:s'));
     }
 
     public function setDateTime(\DateTimeInterface $dateTime): self
     {
         $this->date = $dateTime;
         $this->time = $dateTime;
+        return $this;
+    }
+
+    public function getTerrain(): ?Terrain
+    {
+        return $this->terrain;
+    }
+
+    public function setTerrain(?Terrain $terrain): self
+    {
+        $this->terrain = $terrain;
         return $this;
     }
     

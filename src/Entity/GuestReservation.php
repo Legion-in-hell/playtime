@@ -36,6 +36,10 @@ class GuestReservation
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $clientPhone;
 
+    #[ORM\ManyToOne(targetEntity: Terrain::class ,inversedBy: 'reservations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Terrain $terrain = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -115,6 +119,17 @@ class GuestReservation
     public function setClientPhone(?string $clientPhone): self
     {
         $this->clientPhone = $clientPhone;
+        return $this;
+    }
+
+    public function getTerrain(): ?Terrain
+    {
+        return $this->terrain;
+    }
+
+    public function setTerrain(?Terrain $terrain): self
+    {
+        $this->terrain = $terrain;
         return $this;
     }
 }

@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\Terrain;
 
 class ManualReservationType extends AbstractType
 {
@@ -30,6 +31,18 @@ class ManualReservationType extends AbstractType
                 },
                 'label' => 'Service',
             ])
+
+            ->add('terrain' , EntityType::class, [
+                'class' => Terrain::class,
+                'choice_label' => 'name',
+                'query_builder' => function ($er) use ($company) {
+                    return $er->createQueryBuilder('t')
+                        ->where('t.sportCompany = :company')
+                        ->setParameter('company', $company);
+                },
+                'label' => 'Terrain',
+            ])
+
             ->add('dateTime', DateTimeType::class, [
                 'widget' => 'single_text',
                 'html5' => true,

@@ -13,6 +13,7 @@ use App\Entity\Service;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Doctrine\ORM\EntityRepository;
 use App\Form\DataTransformer\TimeToStringTransformer;
+use App\Entity\Terrain;
 
 class ReservationType extends AbstractType
 {
@@ -27,6 +28,17 @@ class ReservationType extends AbstractType
                 'attr' => ['class' => 'datepicker'],
                 'label' => 'Date',
             ])
+
+            ->add('terrain', EntityType::class, [
+                'class' => Terrain::class,
+                'choice_label' => 'name',
+                'query_builder' => function (EntityRepository $er) use ($company) {
+                    return $er->createQueryBuilder('t')
+                        ->where('t.sportCompany = :company')
+                        ->setParameter('company', $company);
+                },
+            ])
+
             ->add('time', ChoiceType::class, [
                 'choices' => $this->getTimeChoices($company),
                 'label' => 'Heure',
