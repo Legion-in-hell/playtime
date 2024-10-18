@@ -4,6 +4,14 @@ Important:
 
 - Le css de la modification de la fiche établissement n'est pas pris en compte.
 
+- Mettre en place le système photo des entreprises
+
+- mettre en place la vilidation pour user (guestUser est deja en place)
+
 Medium:
 
 - Ne pas avoir la possibilité de modifié le boolean "Abonné" dans la modification de la fiche entreprise.
+
+- Il faut que la réservation redirige vers l'inscription et que cela valide le tout automatiquement. Actuellement rien ne se passe si on est pas connecté.
+
+- Avoir un dark theme
