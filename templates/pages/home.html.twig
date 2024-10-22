@@ -36,7 +36,7 @@
             <div class="venue-card">
                 <div class="venue-image">
                 {% if company.images.first %}
-                    <img src="{{ vich_uploader_asset(image, 'imageFile')}}" alt="{{ company.name }}">
+                <img src="{{ vich_uploader_asset(firstImage, 'imageFile') }}" alt="{{ company.name }}">
                 {% else %}
                     <img src="{{ asset('images/header.jpg') }}" alt="{{ company.name }}">
                 {% endif %}

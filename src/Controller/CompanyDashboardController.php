@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Reservation;
 use App\Form\ManualReservationType;
 use App\Entity\GuestReservation;
+use App\Entity\CompanyImage;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class CompanyDashboardController extends AbstractController
 {
@@ -34,7 +37,7 @@ class CompanyDashboardController extends AbstractController
         $user = $this->getUser();
         
         if (!$user instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
 
         $guestReservation = new GuestReservation();
@@ -50,28 +53,32 @@ class CompanyDashboardController extends AbstractController
 
 
     #[Route('/dashboard/company/update', name: 'company_update')]
-    #[IsGranted('ROLE_COMPANY')]
-    public function updateCompany(Request $request): Response
-    {
-        $company = $this->getUser();
-        if (!$company instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
-        }
+#[IsGranted('ROLE_COMPANY')]
+public function updateCompany(Request $request): Response
+{
+    $company = $this->getUser();
+    if (!$company instanceof SportCompany) {
+        throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
+    }
 
-        $form = $this->createForm(SportCompanyType::class, $company);
-        $form->handleRequest($request);
+    $form = $this->createForm(SportCompanyType::class, $company);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+    if ($form->isSubmitted() && $form->isValid()) {
+        try {
             $this->entityManager->flush();
-
             $this->addFlash('success', 'Les informations de votre entreprise ont été mises à jour avec succès.');
             return $this->redirectToRoute('company_dashboard');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Une erreur est survenue lors de la mise à jour des informations.');
         }
-
-        return $this->render('dashboard/company_update.html.twig', [
-            'form' => $form->createView(),
-        ]);
     }
+
+    return $this->render('dashboard/company_update.html.twig', [
+        'form' => $form->createView(),
+        'company' => $company,
+    ]);
+}
 
     #[Route('/dashboard/services', name: 'company_services')]
     #[IsGranted('ROLE_COMPANY')]
@@ -79,7 +86,7 @@ class CompanyDashboardController extends AbstractController
     {
         $company = $this->getUser();
         if (!$company instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
 
         return $this->render('dashboard/company_services.html.twig', [
@@ -93,7 +100,7 @@ class CompanyDashboardController extends AbstractController
     {
         $company = $this->getUser();
         if (!$company instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
 
         return $this->render('dashboard/company_schedule.html.twig', [
@@ -108,7 +115,7 @@ class CompanyDashboardController extends AbstractController
         $user = $this->getUser();
 
         if (!$user instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
 
         $reservations = $this->entityManager->getRepository(Schedule::class)->findBy(['sportCompany' => $user]);
@@ -126,7 +133,7 @@ class CompanyDashboardController extends AbstractController
         $user = $this->getUser();
         
         if (!$user instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
 
         $guestReservation = new GuestReservation();
@@ -159,7 +166,7 @@ class CompanyDashboardController extends AbstractController
     public function guestReservationDetails(GuestReservation $guestReservation): Response
     {
         if ($guestReservation->getSportCompany() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('You do not have access to this reservation.');
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette réservation.');
         }
 
         return $this->render('dashboard/guest_reservation_details.html.twig', [
@@ -176,7 +183,7 @@ class CompanyDashboardController extends AbstractController
         $user = $this->getUser();
         
         if (!$user instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
     
         $reservations = $this->entityManager->getRepository(Reservation::class)->findBy(['sportCompany' => $user]);
@@ -220,7 +227,7 @@ class CompanyDashboardController extends AbstractController
     {
         $company = $this->getUser();
         if (!$company instanceof SportCompany) {
-            throw $this->createAccessDeniedException('User not found or not a SportCompany.');
+            throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
         }
 
         $terrain = new Terrain();
@@ -314,4 +321,71 @@ class CompanyDashboardController extends AbstractController
 
         return $this->redirectToRoute('guest_reservation_details', ['id' => $reservation->getId()]);
     }
+
+    #[Route('/upload-company-image', name: 'upload_company_image', methods: ['POST'])]
+public function uploadImage(Request $request): JsonResponse
+{
+    try {
+        /** @var UploadedFile $file */
+        $file = $request->files->get('file');
+        
+        if (!$file) {
+            return new JsonResponse(['error' => 'No file uploaded'], 400);
+        }
+
+        /** @var SportCompany $company */
+        $company = $this->getUser();
+        if (!$company) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        $companyImage = new CompanyImage();
+        $companyImage->setImageFile($file);
+        $companyImage->setSportCompany($company);
+        
+        $this->entityManager->persist($companyImage);
+        $this->entityManager->flush();
+
+        // Récupérer l'URL de l'image
+        $imageUrl = $request->getSchemeAndHttpHost() . '/uploads/companies/' . $companyImage->getFilename();
+
+        return new JsonResponse([
+            'success' => true,
+            'id' => $companyImage->getId(),
+            'filename' => $companyImage->getFilename(),
+            'url' => $imageUrl
+        ]);
+
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+#[Route('/delete-company-image/{id}', name: 'delete_company_image', methods: ['DELETE'])]
+public function deleteImage(CompanyImage $image): JsonResponse
+{
+    try {
+        // Vérifier que l'utilisateur est bien le propriétaire de l'image
+        if ($image->getSportCompany() !== $this->getUser()) {
+            throw new AccessDeniedException('Vous n\'êtes pas autorisé à supprimer cette image.');
+        }
+
+        // Supprimer l'image
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Image supprimée avec succès'
+        ]);
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Erreur lors de la suppression de l\'image: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

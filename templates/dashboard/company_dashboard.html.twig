@@ -34,7 +34,7 @@
                 <p><i class="fas fa-phone"></i> {{ company.phoneNumber }}</p>
                 <p><i class="fas fa-envelope"></i> {{ company.email }}</p>
                 <p><i class="fas fa-info-circle"></i> {{ company.description }}</p>
-                <a href="{{ path('company_update') }}" class="btn btn-primary">Modifier les informations</a>
+                <a href="{{ path('company_update') }}" class="btn btn-primary infoCompany">Modifier les informations</a>
             </div>
         </section>
 
@@ -84,16 +84,13 @@
                             <td>{{ schedule.dayOfWeek }}</td>
                             <td>{{ schedule.openingTime|date('H:i') }}</td>
                             <td>{{ schedule.closingTime|date('H:i') }}</td>
-                            <td>
-                                <a href="{{ path('schedule_edit', {'id': schedule.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
-                            </td>
                         </tr>
                     {% endfor %}
                 </ul>
             {% else %}
                 <p>Vous n'avez pas encore défini vos horaires d'ouverture.</p>
             {% endif %}
-            <a href="{{ path('company_schedule') }}" class="btn btn-primary">Gérer les horaires</a>
+            <a href="{{ path('company_schedule') }}" class="btn btn-primary hoursCompany">Gérer les horaires</a>
         </section>
 
         <section id="reservations" class="dashboard-section reservations">

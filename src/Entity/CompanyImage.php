@@ -19,7 +19,7 @@ class CompanyImage
     #[ORM\Column(length: 255)]
     private ?string $filename = null;
 
-    #[Vich\UploadableField(mapping: 'company_images', fileNameProperty: 'filename', size: 'imageSize')]
+    #[Vich\UploadableField(mapping: 'company_images', fileNameProperty: 'filename')]
     private ?File $imageFile = null;
 
     #[ORM\ManyToOne(inversedBy: 'images')]
@@ -39,20 +39,6 @@ class CompanyImage
         return $this->id;
     }
 
-    public function setImageFile(?File $imageFile = null): void
-    {
-        $this->imageFile = $imageFile;
-
-        if (null !== $imageFile) {
-            $this->updatedAt = new \DateTimeImmutable();
-        }
-    }
-
-    public function getImageFile(): ?File
-    {
-        return $this->imageFile;
-    }
-
     public function getFilename(): ?string
     {
         return $this->filename;
@@ -64,6 +50,20 @@ class CompanyImage
         return $this;
     }
 
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+        
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
     public function getSportCompany(): ?SportCompany
     {
         return $this->sportCompany;
@@ -72,6 +72,17 @@ class CompanyImage
     public function setSportCompany(?SportCompany $sportCompany): self
     {
         $this->sportCompany = $sportCompany;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 }
