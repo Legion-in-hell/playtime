@@ -34,42 +34,43 @@
     <div class="venue-list">
         {% for company in sportCompanies %}
             <div class="venue-card">
-                <div class="venue-image">
-                {% if company.images.first %}
-                <img src="{{ vich_uploader_asset(firstImage, 'imageFile') }}" alt="{{ company.name }}">
-                {% else %}
-                    <img src="{{ asset('images/header.jpg') }}" alt="{{ company.name }}">
-                {% endif %}
-                </div>
-                <div class="venue-info">
-                    <h3 class="venue-name">{{ company.name }}</h3>
-                    <div class="venue-features">
-                        <div class="venue-feature">
-                            <i class="fas fa-futbol"></i>
-                            <span>{{ company.terrains|length }} Terrain{% if company.terrains|length > 1 %}s{% endif %}</span>
-                        </div>
-                        <div class="venue-feature">
-                            <i class="fas fa-warehouse"></i>
-                            <span> {{ company.terrains|filter(t => t.isIndoor)|length }} Indoor</span>
-                        </div>
-                        <div class="venue-feature">
-                            <i class="fas fa-sun"></i>
-                            <span> {{ company.terrains|filter(t => not t.isIndoor)|length }} Outdoor</span>
-                        </div>
-                    </div>
-                    <div class="venue-address">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span> {{ company.address }} à {{ company.city }} ({{ company.postalCode }})</span>
-                    </div>
-                    <div class="venue-actions">
-                        <span class="venue-price">A partir de {{ company.services[0].price ?? 'N/A' }}€</span>
-                        <div class="action-buttons">
-                            <a href="{{ path('company_details', {'id': company.id}) }}" class="btn-details">Voir Details</a>
-                            <a href="{{ path('make_reservation', {'id': company.id}) }}" class="btn-book">Réserver</a>
-                        </div>
-                    </div>
-                </div>
+    <div class="venue-image">
+    {% if company.images is not empty %}
+        {% set firstImage = company.images|first %}
+        <img src="{{ vich_uploader_asset(firstImage, 'imageFile') }}" alt="{{ company.name }}">
+    {% else %}
+        <img src="{{ asset('images/header.jpg') }}" alt="{{ company.name }}" class="placeholder-image">
+    {% endif %}
+    </div>
+    <div class="venue-info">
+        <h3 class="venue-name">{{ company.name }}</h3>
+        <div class="venue-features">
+            <div class="venue-feature">
+                <i class="fas fa-futbol"></i>
+                <span>{{ company.terrains|length }} Terrain{% if company.terrains|length > 1 %}s{% endif %}</span>
             </div>
+            <div class="venue-feature">
+                <i class="fas fa-warehouse"></i>
+                <span> {{ company.terrains|filter(t => t.isIndoor)|length }} Indoor</span>
+            </div>
+            <div class="venue-feature">
+                <i class="fas fa-sun"></i>
+                <span> {{ company.terrains|filter(t => not t.isIndoor)|length }} Outdoor</span>
+            </div>
+        </div>
+        <div class="venue-address">
+            <i class="fas fa-map-marker-alt"></i>
+            <span> {{ company.address }} à {{ company.city }} ({{ company.postalCode }})</span>
+        </div>
+        <div class="venue-actions">
+            <span class="venue-price">A partir de {{ company.services[0].price ?? 'N/A' }}€</span>
+            <div class="action-buttons">
+                <a href="{{ path('company_details', {'id': company.id}) }}" class="btn-details">Voir Details</a>
+                <a href="{{ path('make_reservation', {'id': company.id}) }}" class="btn-book">Réserver</a>
+            </div>
+        </div>
+    </div>
+</div>
         {% else %}
             <p class="no-venues">Aucun terrain n'est encore enregistré.</p>
         {% endfor %}
