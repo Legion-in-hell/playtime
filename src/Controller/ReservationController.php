@@ -4,8 +4,11 @@ namespace App\Controller;
 setlocale(LC_TIME, 'fr_FR.utf8', 'fra');
 
 use App\Entity\Reservation;
+use App\Entity\Service;
 use App\Entity\SportCompany;
+use App\Entity\Terrain;
 use App\Form\ReservationType;
+use App\Repository\ReservationRepository;
 use App\Service\ReservationValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormError;
 use App\Entity\StandardUser;
+use function League\Uri\parse;
 
 class ReservationController extends AbstractController
 {
@@ -24,52 +28,128 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/reservation/new/{id}', name: 'make_reservation')]
-public function new(Request $request, EntityManagerInterface $entityManager, ReservationValidator $validator, SportCompany $company): Response
-{
-    $user = $this->getUser();
-    if (!$user || !in_array('ROLE_USER', $user->getRoles())) {
-        $this->addFlash('error', 'Vous devez être connecté en tant qu\'utilisateur standard pour faire une réservation.');
-        return $this->redirectToRoute('home');
+    public function new(Request $request, SportCompany $company, ReservationRepository $reservationRepository): Response
+    {
+        if($request->isMethod('POST')){
+            $reservationData = $request->request->all();
+
+            if (!isset($reservationData['reservation']['service'], $reservationData['reservation']['terrain'], $reservationData['reservation']['date'], $reservationData['reservation']['time'])) {
+                $this->addFlash('error', 'Réservation incorrecte, veuillez recommencer.');
+                return $this->redirectToRoute('make_reservation');
+            }
+
+            $params = http_build_query([
+                'reservation' => [
+                    'service' => $reservationData['reservation']['service'],
+                    'terrain' => $reservationData['reservation']['terrain'],
+                    'date' => $reservationData['reservation']['date'],
+                    'time' => $reservationData['reservation']['time'],
+                    'company' => $company->getId()
+                ],
+            ]);
+
+            if(!$this->getUser()){
+                return $this->redirectToRoute('app_register_user', ['reservation' => $params]);
+            }
+
+            return $this->redirectToRoute('create_reservation', ['reservation' => $params]);
+        }
+
+        $reservation = new Reservation();
+        $openingHours = $this->getOpeningHours($company);
+
+        $form = $this->createForm(ReservationType::class, $reservation, [
+            'company' => $company,
+        ]);
+
+        $form->handleRequest($request);
+
+        $allReservations = $reservationRepository->findBy(['sportCompany' => $company]);
+        $reservedTimes = [];
+
+        foreach ($allReservations as $existingReservation) {
+            $date = $existingReservation->getDate()->format('Y-m-d');
+            $time = $existingReservation->getTime()->format('H:i');
+
+            if (!isset($reservedTimes[$date])) {
+                $reservedTimes[$date] = [];
+            }
+
+            $reservedTimes[$date][] = $time;
+        }
+
+        return $this->render('reservation/new.html.twig', [
+            'form' => $form->createView(),
+            'company' => $company,
+            'openingHours' => json_encode($openingHours),
+            'reservedTimes' => json_encode($reservedTimes),
+        ]);
     }
 
-    $standardUser = $entityManager->getRepository(StandardUser::class)->find($user->getId());
-    if (!$standardUser) {
-        $this->addFlash('error', 'Votre compte n\'est pas configuré correctement pour faire une réservation.');
-        return $this->redirectToRoute('home');
-    }
+    #[Route('/reservation/create', name: 'create_reservation')]
+    public function createReservation(Request $request, EntityManagerInterface $entityManager, ReservationValidator $validator): Response
+    {
+        $user = $this->getUser();
+        parse_str($request->query->get('reservation'), $reservationData);
 
-    $reservation = new Reservation();
-    $reservation->setSportCompany($company);
-    $reservation->setStandardUser($standardUser);
-    $openingHours = $this->getOpeningHours($company);
-    
-    $form = $this->createForm(ReservationType::class, $reservation, [
-        'company' => $company,
-    ]);
-    
-    $form->handleRequest($request);
+        if (!$user && $reservationData['reservation']['user']) {
+            $userId = $reservationData['reservation']['user'];
+            $user = $entityManager->getRepository(StandardUser::class)->find($userId);
 
-    if ($form->isSubmitted() && $form->isValid()) {
+            if (!$user) {
+                $this->addFlash('error', 'Utilisateur introuvable, veuillez vous reconnecter ou créer un compte.');
+                return $this->redirectToRoute('app_register');
+            }
+        }
+
+        if (!$request->query->has('reservation')) {
+            $this->addFlash('error', 'Réservation incomplète, veuillez recommencer.');
+            $updatedQuery = http_build_query([
+                'reservation' => $reservationData,
+                'user' => $user->getId()
+            ]);
+            return $this->redirectToRoute('make_reservation', ['reservation' => $updatedQuery]);
+        }
+
+        $company = $entityManager->getRepository(SportCompany::class)->find($reservationData['reservation']['company']);
+        $service = $entityManager->getRepository(Service::class)->find($reservationData['reservation']['service']);
+        $terrain = $entityManager->getRepository(Terrain::class)->find($reservationData['reservation']['terrain']);
+
+        if (!$company || !$service || !$terrain) {
+            $this->addFlash('error', 'Réservation incorrecte ou déjà prise, veuillez recommencer.');
+            return $this->redirectToRoute('make_reservation', [
+                'reservation' => http_build_query($reservationData)
+            ]);
+        }
+
+        $reservation = new Reservation();
+        $reservation
+            ->setStandardUser($user)
+            ->setSportCompany($company)
+            ->setService($service)
+            ->setTerrain($terrain)
+            ->setDate(new \DateTime($reservationData['reservation']['date']))
+            ->setTime(new \DateTime($reservationData['reservation']['time']));
+
+        $form = $this->createForm(ReservationType::class, $reservation, ['company' => $company]);
+
         $validationResult = $validator->validate($reservation);
-        if ($validationResult->isValid()) {
-            $entityManager->persist($reservation);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Réservation créée avec succès !');
-            return $this->redirectToRoute('reservation_details', ['id' => $reservation->getId()]);
-        } else {
+        if (!$validationResult->isValid()) {
             foreach ($validationResult->getErrors() as $error) {
                 $form->addError(new FormError($error));
             }
+            return $this->redirectToRoute('make_reservation');
         }
-    }
 
-    return $this->render('reservation/new.html.twig', [
-        'form' => $form->createView(),
-        'company' => $company,
-        'openingHours' => json_encode($openingHours),
-    ]);
-}
+        $entityManager->persist($reservation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Réservation créée avec succès !');
+        if(isset($reservationData['user']) && $reservationData['user']){
+            $this->addFlash('success', 'Veuillez vous connecter pour voir votre réservation.');
+        }
+        return $this->redirectToRoute('reservation_details', ['id' => $reservation->getId()]);
+    }
 
     private function getOpeningHours(SportCompany $company): array
     {
@@ -102,7 +182,7 @@ public function new(Request $request, EntityManagerInterface $entityManager, Res
     #[IsGranted('ROLE_USER', subject: 'reservation')]
     public function details(Reservation $reservation): Response
     {
-    
+
         return $this->render('reservation/details.html.twig', [
             'reservation' => $reservation,
             'openingHours' => $reservation->getSportCompany()->getSchedules(),
