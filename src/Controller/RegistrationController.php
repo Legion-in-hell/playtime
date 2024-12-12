@@ -41,7 +41,6 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(StandardUserRegistrationFormType::class, $user);
         $form->handleRequest($request);
 
-
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setRoles(['ROLE_USER']);
             $user->setPassword(
@@ -53,6 +52,23 @@ class RegistrationController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
+
+            if ($request->query->has('reservation')) {
+                parse_str($request->query->get('reservation'), $reservationData);
+
+                $updatedQuery = http_build_query([
+                    'reservation' => [
+                        'service' => $reservationData['reservation']['service'],
+                        'terrain' => $reservationData['reservation']['terrain'],
+                        'date' => $reservationData['reservation']['date'],
+                        'time' => $reservationData['reservation']['time'],
+                        'company' => $reservationData['reservation']['company'],
+                        'user' => $user->getId(),
+                    ],
+                ]);
+
+                return $this->redirectToRoute('create_reservation', ['reservation' => $updatedQuery]);
+            }
 
             // $this->sendVerificationEmail($user);
 
