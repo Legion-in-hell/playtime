@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Schedule;
 use App\Entity\SportCompany;
 use App\Form\SportCompanyType;
+use App\Repository\GuestReservationRepository;
+use App\Repository\ReservationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,7 +34,7 @@ class CompanyDashboardController extends AbstractController
 
     #[Route('/dashboard', name: 'company_dashboard')]
     #[IsGranted('ROLE_COMPANY')]
-    public function index(Request $request): Response
+    public function index(Request $request, ReservationRepository $reservationRepository, GuestReservationRepository $guestReservationRepository): Response
     {
         $user = $this->getUser();
         
@@ -45,17 +47,76 @@ class CompanyDashboardController extends AbstractController
             'company' => $user,
         ]);
 
+        $openingHours = $this->getOpeningHours($user);
+
+        $companyReservations = $reservationRepository->findBy(['sportCompany' => $user]);
+
+        $guestReservations = $guestReservationRepository->findBy(['sportCompany' => $user]);
+
+        $reservedTimes = [];
+
+        foreach ($companyReservations as $existingReservation) {
+            $date = $existingReservation->getDate()->format('Y-m-d');
+            $time = $existingReservation->getTime()->format('H:i');
+
+            if (!isset($reservedTimes[$date])) {
+                $reservedTimes[$date] = [];
+            }
+
+            $reservedTimes[$date][] = $time;
+        }
+
+        foreach ($guestReservations as $guestReservation) {
+            $dateTime = $guestReservation->getDateTime();
+            $date = $dateTime->format('Y-m-d');
+            $time = $dateTime->format('H:i');
+
+            if (!isset($reservedTimes[$date])) {
+                $reservedTimes[$date] = [];
+            }
+
+            $reservedTimes[$date][] = $time;
+        }
+
         return $this->render('dashboard/company_dashboard.html.twig', [
             'company' => $user,
             'manualReservationForm' => $manualReservationForm->createView(),
+            'openingHours' => $openingHours,
+            'reservedTimes' => $reservedTimes,
         ]);
     }
 
+    private function getOpeningHours(SportCompany $company): array
+    {
+        $openingHours = [];
+        $dayTranslations = [
+            'lundi' => 'monday',
+            'mardi' => 'tuesday',
+            'mercredi' => 'wednesday',
+            'jeudi' => 'thursday',
+            'vendredi' => 'friday',
+            'samedi' => 'saturday',
+            'dimanche' => 'sunday'
+        ];
+
+        foreach ($company->getSchedules() as $schedule) {
+            $frenchDay = mb_strtolower($schedule->getDayOfWeek());
+            $englishDay = $dayTranslations[$frenchDay] ?? $frenchDay;
+
+            $openingHours[] = [
+                'day' => $englishDay,
+                'open' => $schedule->getOpeningTime()->format('H:i'),
+                'close' => $schedule->getClosingTime()->format('H:i'),
+            ];
+        }
+
+        return $openingHours;
+    }
 
     #[Route('/dashboard/company/update', name: 'company_update')]
-#[IsGranted('ROLE_COMPANY')]
-public function updateCompany(Request $request): Response
-{
+    #[IsGranted('ROLE_COMPANY')]
+    public function updateCompany(Request $request): Response
+    {
     $company = $this->getUser();
     if (!$company instanceof SportCompany) {
         throw $this->createAccessDeniedException('Utilisateur introuvable ou n\'étant pas une société sportive.');
