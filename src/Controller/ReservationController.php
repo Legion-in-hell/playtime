@@ -31,7 +31,8 @@ class ReservationController extends AbstractController
     public function new(Request $request, SportCompany $company, ReservationRepository $reservationRepository): Response
     {
         $user = $this->getUser();
-        if(in_array('ROLE_COMPANY', $user->getRoles())){
+
+        if ($user && in_array('ROLE_COMPANY', $user->getRoles())) {
             return $this->redirectToRoute('home');
         }
 
