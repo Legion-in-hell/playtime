@@ -155,7 +155,11 @@
             const calendarDailyList = document.querySelectorAll('.terrain-daily');
             let weeklyCalendar;
             let calendars = [];
-            var terrainFilter = document.getElementById('terrain-filter');
+            let terrainFilter = document.getElementById('terrain-filter');
+            const openingHours = {{ openingHours|json_encode|raw }};
+            const reservedTimes = {{ reservedTimes|json_encode|raw }};
+
+            console.log(reservedTimes);
 
             document.getElementById("monthlyCalendarButton").addEventListener("click", function() {
                 return displayMonthlyCalendar();
@@ -342,8 +346,87 @@
             flatpickr(".flatpickr", {
                 enableTime: true,
                 dateFormat: "Y-m-d H:i",
-                locale: "fr"
+                locale: "fr",
+                minuteIncrement: 30,
+                enable: [
+                    function(date) {
+                        const dayOfWeek = date.toLocaleDateString('en-US', {weekday: 'long'}).toLowerCase();
+                        return openingHours.some(schedule => schedule.day === dayOfWeek);
+                    }
+                ],
             });
+
+            document.querySelector(".flatpickr").addEventListener("change", function(event) {
+                const input = event.target;
+                const selectedDate = new Date(input.value);
+
+                if (isNaN(selectedDate)) {
+                    showValidationMessage(input, "L'horaire entré est invalide.");
+                    return;
+                }
+
+                const dayOfWeek = selectedDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                const time = selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                const schedule = openingHours.find(schedule => schedule.day === dayOfWeek);
+
+                if (!schedule) {
+                    showValidationMessage(input, "La date sélectionnée est invalide.");
+                    return;
+                }
+
+                if (time < schedule.open || time > subtractOneHour(schedule.close)) {
+                    showValidationMessage(input, `L'heure sélectionnée est en dehors des heures d'ouvertures : ${schedule.open} - ${schedule.close}.`);
+                    return;
+                }
+
+                const dateKey = selectedDate.toISOString().split('T')[0];
+                if (reservedTimes[dateKey] && reservedTimes[dateKey].includes(time)) {
+                    showValidationMessage(input, "Cet horaire est déjà réservé.");
+                    return;
+                }
+
+                removeValidationMessage(input);
+            });
+
+            function showValidationMessage(input, message) {
+                let messageElement = input.nextElementSibling;
+                if (messageElement && messageElement.classList.contains("validation-message")) {
+                    messageElement.textContent = message;
+                } else {
+                    messageElement = document.createElement("div");
+                    messageElement.className = "validation-message";
+                    messageElement.style.color = "red";
+                    messageElement.style.fontSize = "0.9em";
+                    messageElement.style.marginBottom = "1em";
+                    messageElement.textContent = message;
+                    input.parentNode.insertBefore(messageElement, input.nextSibling);
+                }
+            }
+
+            function removeValidationMessage(input) {
+                const messageElement = input.nextElementSibling;
+                if (messageElement && messageElement.classList.contains("validation-message")) {
+                    messageElement.remove();
+                }
+            }
+
+            function subtractOneHour(time) {
+                const date = new Date();
+
+                const [hours, minutes] = time.split(":").map(Number);
+
+                date.setHours(hours);
+                date.setMinutes(minutes);
+
+                date.setHours(date.getHours() - 1);
+
+                return date.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+            }
 
             document.getElementById('show-manual-reservation-form').addEventListener('click', function() {
                 document.getElementById('manual-reservation-form').style.display = 'block';
@@ -357,6 +440,36 @@
 
             document.querySelector('#manual-reservation-form form').addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                const dateInput = document.querySelector('#manual_reservation_dateTime');
+                const selectedDate = new Date(dateInput.value);
+
+                if (isNaN(selectedDate)) {
+                    alert("L'horaire entrée est invalide.");
+                    return;
+                }
+
+                const dayOfWeek = selectedDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                const time = selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                const schedule = openingHours.find(schedule => schedule.day === dayOfWeek);
+
+                if (!schedule) {
+                    alert("La date sélectionnée est invalide.");
+                    return;
+                }
+
+                if (time < schedule.open || time > subtractOneHour(schedule.close)) {
+                    alert(`L'heure sélectionnée est en dehors des heures d'ouvertures : ${schedule.open} - ${schedule.close}.`);
+                    return;
+                }
+
+                const dateKey = selectedDate.toISOString().split('T')[0];
+                if (reservedTimes[dateKey] && reservedTimes[dateKey].includes(time)) {
+                    alert("Cet horaire est déjà réservé.");
+                    return;
+                }
+
                 fetch(this.action, {
                     method: 'POST',
                     body: new FormData(this)
