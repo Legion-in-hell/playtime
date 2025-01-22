@@ -80,6 +80,12 @@
                 {{ form_errors(registrationForm.phoneNumber) }}
             </div>
 
+            {#<div class="form-group">
+                {{ form_label(registrationForm.images, 'Image') }}
+                {{ form_widget(registrationForm.images) }}
+                {{ form_errors(registrationForm.images) }}
+            </div>#}
+
             <div class="form-group">
                 {{ form_label(registrationForm.description, 'Description') }}
                 {{ form_widget(registrationForm.description, {'attr': {'placeholder': 'Décrivez brièvement votre entreprise'}}) }}
