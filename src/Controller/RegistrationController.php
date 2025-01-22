@@ -104,6 +104,11 @@ class RegistrationController extends AbstractController
                 )
             );
 
+            /*foreach ($company->getImages() as $image) {
+                $image->setSportCompany($company);
+                $entityManager->persist($image);
+            }*/
+
             $entityManager->persist($company);
             $entityManager->flush();
 
